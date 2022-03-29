@@ -6,7 +6,7 @@ type ScreenPosition struct {
 }
 
 const (
-	FLOAT_DIVISOR    int     = 2
+	FLOAT_DIVISOR    uint32  = 2
 	COORDW_BAD_VALUE float32 = 1
 )
 

@@ -1,19 +1,17 @@
 package renderer
 
 import (
-	"fmt"
 	"framework-memory-go/src/hook"
 	"framework-memory-go/src/memory"
 	"framework-memory-go/src/offset"
-	"framework-memory-go/src/size"
 	"unsafe"
 )
 
 type Renderer struct {
-	Width          int
-	Height         int
-	ViewMatrix     [16]float32
-	ProjMatrix     [16]float32
+	Width          uint32
+	Height         uint32
+	ViewMatrix     []float32
+	ProjMatrix     []float32
 	ViewProjMatrix [16]float32
 }
 
@@ -30,49 +28,60 @@ func Update(hook hook.ProcessHook) (Renderer, error) {
 		return renderer, err
 	}
 
-	width, err := memory.ReadInt(hook, rendererBase+offset.RENDERERWIDTH)
-	if err != nil {
-		return renderer, err
-	}
-	renderer.Width = width
-
-	height, err := memory.ReadInt(hook, rendererBase+offset.RENDERERHEIGHT)
-	if err != nil {
-		return renderer, err
-	}
-	renderer.Height = height
-
-	rendererBase1, err := memory.Read(hook, rendererBase, 128)
+	rendererBaseBuff, err := memory.Read(hook, rendererBase, 128)
 	if err != nil {
 		return renderer, err
 	}
 
-	dest := make([]uint16, 1)
+	destint := make([]uint32, 1)
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rendererBaseBuff)), rendererBaseBuff[offset.RENDERERWIDTH:])
+	renderer.Width = destint[0]
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rendererBaseBuff)), rendererBaseBuff[offset.RENDERERHEIGHT:])
+	renderer.Height = destint[0]
 
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&dest[0])), unsafe.Sizeof(rendererBase1)), rendererBase1[0xC:])
-	fmt.Println("memcpy:", dest)
-	// fmt.Println("memcpy:", int(dest[offset.RENDERERWIDTH]))
-
-	viewProjMatrices := hook.ModuleBaseAddr + offset.VIEWPROJMATRICES
+	viewProjMatrix := hook.ModuleBaseAddr + offset.VIEWPROJMATRICES
+	viewProjMatricesBuff, err := memory.Read(hook, viewProjMatrix, 128)
 	if err != nil {
 		return renderer, err
 	}
 
-	for i := 0; i < len(renderer.ViewMatrix); i++ {
-		viewMatrixVal, err := memory.ReadFloat(hook, viewProjMatrices+(i*int(size.Float)))
-		if err != nil {
-			return renderer, err
-		}
-		renderer.ViewMatrix[i] = viewMatrixVal
-	}
+	viewMatrix := make([]float32, 16)
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[0])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x0:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[1])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x4:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[2])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x8:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[3])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0xC:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[4])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x10:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[5])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x14:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[6])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x18:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[7])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x1c:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[8])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x20:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[9])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x24:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[10])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x28:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[11])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x2c:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[12])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x30:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[13])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x34:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[14])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x38:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[15])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x3c:])
+	renderer.ViewMatrix = viewMatrix
 
-	for i := 0; i < len(renderer.ProjMatrix); i++ {
-		viewMatrixVal, err := memory.ReadFloat(hook, viewProjMatrices+64+(i*int(size.Float)))
-		if err != nil {
-			return renderer, err
-		}
-		renderer.ProjMatrix[i] = viewMatrixVal
-	}
+	projMatrix := make([]float32, 16)
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[0])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x40:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[1])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x44:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[2])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x48:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[3])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x4c:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[4])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x50:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[5])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x54:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[6])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x58:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[7])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x5c:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[8])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x60:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[9])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x64:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[10])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x68:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[11])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x6c:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[12])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x70:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[13])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x74:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[14])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x78:])
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[15])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x7c:])
+	renderer.ProjMatrix = projMatrix
 
 	mMatrix, _ := multiplyMatrices(renderer)
 	renderer.ViewProjMatrix = mMatrix
