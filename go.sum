@@ -1,0 +1,4 @@
+github.com/JamesHovious/w32 v1.2.0 h1:UZWv2ea6y4Kylzs7DGXWcSCaUH+OxH8q7aCFmMUqwao=
+github.com/JamesHovious/w32 v1.2.0/go.mod h1:L6LTHMKvhtpGUkIYGTo4U9PKancYKpGS/+naYtTs8Ys=
+golang.org/x/sys v0.0.0-20220327210214-530d0810a4d0 h1:G6WAvvcMaaFYQhMbC0L5ZWNExEcJ3j3yFTxx4mwOHtM=
+golang.org/x/sys v0.0.0-20220327210214-530d0810a4d0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
