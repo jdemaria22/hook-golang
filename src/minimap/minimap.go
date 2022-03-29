@@ -6,6 +6,7 @@ import (
 	"framework-memory-go/src/memory"
 	"framework-memory-go/src/offset"
 	"framework-memory-go/src/renderer"
+	"unsafe"
 )
 
 type Minimap struct {
@@ -16,8 +17,9 @@ type Minimap struct {
 }
 
 const (
-	Y_ADD_VALUE int     = 4
-	WORLD_SCALE float32 = 15000
+	Y_ADD_VALUE      int     = 4
+	WORLD_SCALE      float32 = 15000
+	MINIMAP_HUD_BUFF int     = 0x80
 )
 
 func Update(hook hook.ProcessHook) (Minimap, error) {
@@ -31,7 +33,7 @@ func Update(hook hook.ProcessHook) (Minimap, error) {
 		return minimap, fmt.Errorf("error to find minimapObject")
 	}
 
-	minimapHUD, err := memory.ReadInt(hook, hook.ModuleBaseAddr+offset.MINIMAPOBJECTHUD)
+	minimapHUD, err := memory.ReadInt(hook, minimapObject+offset.MINIMAPOBJECTHUD)
 	if err != nil {
 		return minimap, err
 	}
@@ -40,29 +42,23 @@ func Update(hook hook.ProcessHook) (Minimap, error) {
 		return minimap, fmt.Errorf("error to find minimapHUD")
 	}
 
-	x, err := memory.ReadFloat(hook, minimapHUD+offset.MINIMAPHUDPOS)
+	minimapHUDBuff, err := memory.Read(hook, minimapHUD, MINIMAP_HUD_BUFF)
 	if err != nil {
 		return minimap, err
 	}
-	minimap.X = x
 
-	y, err := memory.ReadFloat(hook, minimapHUD+offset.MINIMAPHUDPOS+Y_ADD_VALUE)
-	if err != nil {
-		return minimap, err
-	}
-	minimap.Y = y
+	destfloat := make([]float32, 1)
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDPOS:])
+	minimap.X = destfloat[0]
 
-	width, err := memory.ReadFloat(hook, minimapHUD+offset.MINIMAPHUDSIZE+Y_ADD_VALUE)
-	if err != nil {
-		return minimap, err
-	}
-	minimap.Width = width
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDPOS+Y_ADD_VALUE:])
+	minimap.Y = destfloat[0]
 
-	height, err := memory.ReadFloat(hook, minimapHUD+offset.MINIMAPHUDSIZE+Y_ADD_VALUE)
-	if err != nil {
-		return minimap, err
-	}
-	minimap.Height = height
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDSIZE:])
+	minimap.Width = destfloat[0]
+
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDSIZE+Y_ADD_VALUE:])
+	minimap.Height = destfloat[0]
 
 	return minimap, nil
 }
