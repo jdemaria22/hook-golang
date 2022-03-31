@@ -17,9 +17,9 @@ type Minimap struct {
 }
 
 const (
-	Y_ADD_VALUE      int     = 4
-	WORLD_SCALE      float32 = 15000
-	MINIMAP_HUD_BUFF int     = 0x80
+	Y_ADD_VALUE           int     = 4
+	WORLD_SCALE           float32 = 15000
+	MINIMAP_HUD_BUFF_SIZE int     = 0x80
 )
 
 func Update(hook hook.ProcessHook) (Minimap, error) {
@@ -42,7 +42,7 @@ func Update(hook hook.ProcessHook) (Minimap, error) {
 		return minimap, fmt.Errorf("error to find minimapHUD")
 	}
 
-	minimapHUDBuff, err := memory.Read(hook, minimapHUD, MINIMAP_HUD_BUFF)
+	minimapHUDBuff, err := memory.Read(hook, minimapHUD, MINIMAP_HUD_BUFF_SIZE)
 	if err != nil {
 		return minimap, err
 	}
