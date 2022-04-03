@@ -2,11 +2,11 @@ package memory
 
 import (
 	"encoding/binary"
-	"framework-memory-go/src/hook"
 	"framework-memory-go/src/size"
 	"framework-memory-go/src/win"
 	"math"
 	"unicode/utf16"
+	"unsafe"
 )
 
 const (
@@ -17,10 +17,10 @@ const (
 )
 
 type KERNEL_READ_REQUEST struct {
-	ProcessId win.HANDLE //target process id
-	Address   int        // address of memory to start reading from
-	pBuff     []byte     // return value
-	Size      uint       // size of memory to read
+	ProcessId win.HANDLE
+	Address   int
+	pBuff     []byte
+	Size      uint
 }
 
 func StringToUTF16Ptr(str string) *uint16 {
@@ -28,9 +28,9 @@ func StringToUTF16Ptr(str string) *uint16 {
 	return &wchars[0]
 }
 
-func ReadFloat(hook hook.ProcessHook, offsets int) (float32, error) {
+func ReadFloat(process win.HANDLE, offsets int) (float32, error) {
 	var value float32
-	data, err := win.ReadProcessMemory(hook.Process, uint32(offsets), size.Float)
+	data, err := win.ReadProcessMemory(process, uint32(offsets), size.Float)
 	if err != nil {
 		return value, err
 	}
@@ -38,9 +38,9 @@ func ReadFloat(hook hook.ProcessHook, offsets int) (float32, error) {
 	return math.Float32frombits(bits), nil
 }
 
-func ReadInt(hook hook.ProcessHook, offsets int) (int, error) {
+func ReadInt(process win.HANDLE, offsets int) (int, error) {
 	var value int
-	data, err := win.ReadProcessMemory(hook.Process, uint32(offsets), size.Int)
+	data, err := win.ReadProcessMemory(process, uint32(offsets), size.Int)
 	if err != nil {
 		return value, err
 	}
@@ -48,16 +48,34 @@ func ReadInt(hook hook.ProcessHook, offsets int) (int, error) {
 	return int(bits), nil
 }
 
-func Read(hook hook.ProcessHook, offsets int, size int) ([]byte, error) {
-	data, err := win.ReadProcessMemory(hook.Process, uint32(offsets), uint(size))
+func Read(process win.HANDLE, offsets int, size int) ([]byte, error) {
+	data, err := win.ReadProcessMemory(process, uint32(offsets), uint(size))
 	if err != nil {
 		return data, err
 	}
 	return data, nil
 }
 
-func MemCopy(src []byte, dest int) {
+func Float32frombytes(bytes []byte) float32 {
+	bits := binary.LittleEndian.Uint32(bytes)
+	float := math.Float32frombits(bits)
+	return float
+}
 
+func Int32frombytes(bytes []byte) int32 {
+	return int32(binary.LittleEndian.Uint32(bytes))
+}
+
+func CopyInt(data []byte, offset int) int32 {
+	var destint int32
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint)), unsafe.Sizeof(data)), data[offset:])
+	return destint
+}
+
+func CopyFloat(data []byte, offset int) float32 {
+	var destfloat float32
+	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat)), unsafe.Sizeof(data)), data[offset:])
+	return destfloat
 }
 
 func ctl_code(device_type, function, method, access uint32) uint32 {

@@ -1,15 +1,15 @@
 package renderer
 
 import (
-	"framework-memory-go/src/hook"
+	Hook "framework-memory-go/src/hook"
 	"framework-memory-go/src/memory"
 	"framework-memory-go/src/offset"
-	"unsafe"
+	"sync"
 )
 
 type Renderer struct {
-	Width          uint32
-	Height         uint32
+	Width          int32
+	Height         int32
 	ViewMatrix     []float32
 	ProjMatrix     []float32
 	ViewProjMatrix [16]float32
@@ -21,71 +21,225 @@ const (
 	LAST_VALUE_VIEW_PROJ       int     = 4
 )
 
-func Update(hook hook.ProcessHook) (Renderer, error) {
-	var renderer Renderer
-	rendererBase, err := memory.ReadInt(hook, hook.ModuleBaseAddr+offset.RENDERER)
+var (
+	hook     Hook.ProcessHook = Hook.HOOK
+	RENDERER Renderer
+)
+
+func Update() error {
+	var wg sync.WaitGroup
+
+	rendererBase, err := memory.ReadInt(hook.Process, hook.ModuleBaseAddr+offset.RENDERER)
 	if err != nil {
-		return renderer, err
+		return err
 	}
 
-	rendererBaseBuff, err := memory.Read(hook, rendererBase, 128)
+	rendererBaseBuff, err := memory.Read(hook.Process, rendererBase, 128)
 	if err != nil {
-		return renderer, err
+		return err
 	}
 
-	destint := make([]uint32, 1)
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rendererBaseBuff)), rendererBaseBuff[offset.RENDERERWIDTH:])
-	renderer.Width = destint[0]
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rendererBaseBuff)), rendererBaseBuff[offset.RENDERERHEIGHT:])
-	renderer.Height = destint[0]
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		RENDERER.Width = memory.CopyInt(rendererBaseBuff, offset.RENDERERWIDTH)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		RENDERER.Height = memory.CopyInt(rendererBaseBuff, offset.RENDERERHEIGHT)
+	}()
 
 	viewProjMatrix := hook.ModuleBaseAddr + offset.VIEWPROJMATRICES
-	viewProjMatricesBuff, err := memory.Read(hook, viewProjMatrix, 128)
+	viewProjMatricesBuff, err := memory.Read(hook.Process, viewProjMatrix, 128)
 	if err != nil {
-		return renderer, err
+		return err
 	}
 
 	viewMatrix := make([]float32, 16)
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[0])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x0:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[1])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x4:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[2])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x8:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[3])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0xC:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[4])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x10:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[5])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x14:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[6])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x18:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[7])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x1c:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[8])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x20:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[9])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x24:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[10])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x28:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[11])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x2c:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[12])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x30:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[13])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x34:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[14])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x38:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&viewMatrix[15])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x3c:])
-	renderer.ViewMatrix = viewMatrix
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[0] = memory.Float32frombytes(viewProjMatricesBuff[0x0 : 0x0+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[0] = memory.Float32frombytes(viewProjMatricesBuff[0x0 : 0x0+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[1] = memory.Float32frombytes(viewProjMatricesBuff[0x4 : 0x4+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[2] = memory.Float32frombytes(viewProjMatricesBuff[0x8 : 0x8+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[3] = memory.Float32frombytes(viewProjMatricesBuff[0xC : 0xC+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[4] = memory.Float32frombytes(viewProjMatricesBuff[0x10 : 0x10+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[5] = memory.Float32frombytes(viewProjMatricesBuff[0x14 : 0x14+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[6] = memory.Float32frombytes(viewProjMatricesBuff[0x18 : 0x18+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[7] = memory.Float32frombytes(viewProjMatricesBuff[0x1C : 0x1C+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[8] = memory.Float32frombytes(viewProjMatricesBuff[0x20 : 0x20+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[9] = memory.Float32frombytes(viewProjMatricesBuff[0x24 : 0x24+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[10] = memory.Float32frombytes(viewProjMatricesBuff[0x28 : 0x28+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[11] = memory.Float32frombytes(viewProjMatricesBuff[0x2c : 0x2c+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[12] = memory.Float32frombytes(viewProjMatricesBuff[0x30 : 0x30+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[13] = memory.Float32frombytes(viewProjMatricesBuff[0x34 : 0x34+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[14] = memory.Float32frombytes(viewProjMatricesBuff[0x38 : 0x38+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		viewMatrix[15] = memory.Float32frombytes(viewProjMatricesBuff[0x3c : 0x3c+4])
+	}()
+	wg.Wait()
+	RENDERER.ViewMatrix = viewMatrix
 
 	projMatrix := make([]float32, 16)
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[0])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x40:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[1])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x44:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[2])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x48:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[3])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x4c:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[4])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x50:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[5])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x54:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[6])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x58:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[7])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x5c:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[8])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x60:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[9])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x64:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[10])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x68:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[11])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x6c:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[12])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x70:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[13])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x74:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[14])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x78:])
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&projMatrix[15])), unsafe.Sizeof(viewProjMatricesBuff)), viewProjMatricesBuff[0x7c:])
-	renderer.ProjMatrix = projMatrix
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[0] = memory.Float32frombytes(viewProjMatricesBuff[0x40 : 0x40+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[1] = memory.Float32frombytes(viewProjMatricesBuff[0x44 : 0x44+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[2] = memory.Float32frombytes(viewProjMatricesBuff[0x48 : 0x48+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[3] = memory.Float32frombytes(viewProjMatricesBuff[0x4c : 0x4c+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[4] = memory.Float32frombytes(viewProjMatricesBuff[0x50 : 0x50+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[5] = memory.Float32frombytes(viewProjMatricesBuff[0x54 : 0x54+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[6] = memory.Float32frombytes(viewProjMatricesBuff[0x58 : 0x58+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[7] = memory.Float32frombytes(viewProjMatricesBuff[0x5c : 0x5c+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[8] = memory.Float32frombytes(viewProjMatricesBuff[0x60 : 0x60+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[9] = memory.Float32frombytes(viewProjMatricesBuff[0x64 : 0x64+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[10] = memory.Float32frombytes(viewProjMatricesBuff[0x68 : 0x68+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[11] = memory.Float32frombytes(viewProjMatricesBuff[0x6c : 0x6c+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[12] = memory.Float32frombytes(viewProjMatricesBuff[0x70 : 0x70+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[13] = memory.Float32frombytes(viewProjMatricesBuff[0x74 : 0x74+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[14] = memory.Float32frombytes(viewProjMatricesBuff[0x78 : 0x78+4])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		projMatrix[15] = memory.Float32frombytes(viewProjMatricesBuff[0x7c : 0x7c+4])
+	}()
+	wg.Wait()
+	RENDERER.ProjMatrix = projMatrix
 
-	mMatrix, _ := multiplyMatrices(renderer)
-	renderer.ViewProjMatrix = mMatrix
-	return renderer, nil
+	var mMatrix [16]float32
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		mMatrix, _ = multiplyMatrices(RENDERER)
+	}()
+
+	wg.Wait()
+	RENDERER.ViewProjMatrix = mMatrix
+	return nil
 }
 
 func multiplyMatrices(renderer Renderer) ([16]float32, error) {

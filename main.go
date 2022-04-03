@@ -6,34 +6,66 @@ import (
 	"framework-memory-go/src/minimap"
 	"framework-memory-go/src/renderer"
 	"framework-memory-go/src/time"
+	"framework-memory-go/src/unitmanager"
+	"sync"
 )
 
+var (
+	HOOK hook.ProcessHook
+)
+
+func init() {
+	processHook, err := hook.GetHook()
+	if err != nil {
+		fmt.Println(err)
+	}
+	HOOK = processHook
+}
+
 func main() {
-	fmt.Println("inject initializing...")
-	processHook, err := hook.Hook()
-	if err != nil {
-		fmt.Println(err)
-	}
+	var wg sync.WaitGroup
+	var err error
 
-	fmt.Println("updating time...")
-	time, err := time.Update(processHook)
-	if err != nil {
-		fmt.Println("Error: ", err)
-	}
-	fmt.Println("Time: ", time)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = time.Update()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 
-	fmt.Println("updating Renderer...")
-	renderer, err := renderer.Update(processHook)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Renderer :", renderer)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = renderer.Update()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 
-	fmt.Println("updating Minimap...")
-	minimap, err := minimap.Update(processHook)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Minimap :", minimap)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = minimap.Update()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = unitmanager.Update()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	wg.Wait()
+	fmt.Println("Time: ", time.TIME)
+	fmt.Println("Renderer :", renderer.RENDERER)
+	fmt.Println("Minimap :", minimap.MINIMAP)
+	fmt.Println("Unit manager champ: .", unitmanager.UNITMANAGER.Champions)
+	fmt.Println("Unit manager minios: .", len(unitmanager.UNITMANAGER.Minions))
 }

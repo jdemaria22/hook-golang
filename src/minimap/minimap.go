@@ -2,11 +2,10 @@ package minimap
 
 import (
 	"fmt"
-	"framework-memory-go/src/hook"
+	Hook "framework-memory-go/src/hook"
 	"framework-memory-go/src/memory"
 	"framework-memory-go/src/offset"
 	"framework-memory-go/src/renderer"
-	"unsafe"
 )
 
 type Minimap struct {
@@ -17,50 +16,46 @@ type Minimap struct {
 }
 
 const (
-	Y_ADD_VALUE           int     = 4
+	Y_ADD_VALUE           int     = 0x4
 	WORLD_SCALE           float32 = 15000
 	MINIMAP_HUD_BUFF_SIZE int     = 0x80
 )
 
-func Update(hook hook.ProcessHook) (Minimap, error) {
-	var minimap Minimap
-	minimapObject, err := memory.ReadInt(hook, hook.ModuleBaseAddr+offset.MINIMAPOBJECT)
+var (
+	HOOK    Hook.ProcessHook = Hook.HOOK
+	MINIMAP Minimap
+)
+
+func Update() error {
+	minimapObject, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.MINIMAPOBJECT)
 	if err != nil {
-		return minimap, err
+		return err
 	}
 
 	if minimapObject <= 0 {
-		return minimap, fmt.Errorf("error to find minimapObject")
+		return fmt.Errorf("error to find minimapObject")
 	}
 
-	minimapHUD, err := memory.ReadInt(hook, minimapObject+offset.MINIMAPOBJECTHUD)
+	minimapHUD, err := memory.ReadInt(HOOK.Process, minimapObject+offset.MINIMAPOBJECTHUD)
 	if err != nil {
-		return minimap, err
+		return err
 	}
 
 	if minimapHUD <= 0 {
-		return minimap, fmt.Errorf("error to find minimapHUD")
+		return fmt.Errorf("error to find minimapHUD")
 	}
 
-	minimapHUDBuff, err := memory.Read(hook, minimapHUD, MINIMAP_HUD_BUFF_SIZE)
+	minimapHUDBuff, err := memory.Read(HOOK.Process, minimapHUD, MINIMAP_HUD_BUFF_SIZE)
 	if err != nil {
-		return minimap, err
+		return err
 	}
 
-	destfloat := make([]float32, 1)
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDPOS:])
-	minimap.X = destfloat[0]
+	MINIMAP.X = memory.Float32frombytes(minimapHUDBuff[offset.MINIMAPHUDPOS : offset.MINIMAPHUDPOS+4])
+	MINIMAP.Y = memory.Float32frombytes(minimapHUDBuff[offset.MINIMAPHUDPOS+Y_ADD_VALUE : offset.MINIMAPHUDPOS+Y_ADD_VALUE+4])
+	MINIMAP.Width = memory.Float32frombytes(minimapHUDBuff[offset.MINIMAPHUDSIZE : offset.MINIMAPHUDSIZE+4])
+	MINIMAP.Height = memory.Float32frombytes(minimapHUDBuff[offset.MINIMAPHUDSIZE+Y_ADD_VALUE : offset.MINIMAPHUDSIZE+Y_ADD_VALUE+4])
 
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDPOS+Y_ADD_VALUE:])
-	minimap.Y = destfloat[0]
-
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDSIZE:])
-	minimap.Width = destfloat[0]
-
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destfloat[0])), unsafe.Sizeof(minimapHUDBuff)), minimapHUDBuff[offset.MINIMAPHUDSIZE+Y_ADD_VALUE:])
-	minimap.Height = destfloat[0]
-
-	return minimap, nil
+	return nil
 }
 
 func MinimapToScreen(x float32, y float32, z float32, minimap Minimap) renderer.ScreenPosition {

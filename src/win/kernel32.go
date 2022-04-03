@@ -495,40 +495,6 @@ func ReadProcessMemory(hProcess HANDLE, lpBaseAddress uint32, size uint) (data [
 	return
 }
 
-//Reads data from an area of memory in a specified process. The entire area to be read must be accessible or the operation fails.
-//https://msdn.microsoft.com/en-us/library/windows/desktop/ms680553(v=vs.85).aspx
-func ReadProcessMemoryWithStruct(hProcess HANDLE, lpBaseAddress uint32, size uint) (data []byte, err error) {
-	var numBytesRead uintptr
-	data = make([]byte, size)
-
-	_, _, err = procReadProcessMemory.Call(
-		uintptr(hProcess),
-		uintptr(lpBaseAddress),
-		uintptr(unsafe.Pointer(&data[0])),
-		uintptr(size),
-		uintptr(unsafe.Pointer(&numBytesRead)))
-	if !IsErrSuccess(err) {
-		return
-	}
-	err = nil
-	return
-}
-
-func ReadProcessMemoryWithBytesToRoad(hProcess HANDLE, lpBaseAddress uint32, size uint, numBytesRead uintptr) (data []byte, err error) {
-	data = make([]byte, size)
-
-	_, _, err = procReadProcessMemory.Call(uintptr(hProcess),
-		uintptr(lpBaseAddress),
-		uintptr(unsafe.Pointer(&data[0])),
-		uintptr(size),
-		uintptr(unsafe.Pointer(&numBytesRead)))
-	if !IsErrSuccess(err) {
-		return
-	}
-	err = nil
-	return
-}
-
 func IsErrSuccess(err error) bool {
 	if errno, ok := err.(syscall.Errno); ok {
 		if errno == 0 {

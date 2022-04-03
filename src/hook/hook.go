@@ -1,6 +1,7 @@
 package hook
 
 import (
+	"fmt"
 	"framework-memory-go/src/win"
 	"syscall"
 )
@@ -12,11 +13,24 @@ type ProcessHook struct {
 	ModuleBaseAddr int
 }
 
+var (
+	HOOK ProcessHook
+)
+
+func init() {
+	hook, err := GetHook()
+	if err != nil {
+		fmt.Println("Error in init unitmanager", err)
+		return
+	}
+	HOOK = hook
+}
+
 const WINDOW_NAME = "RiotWindowClass"
 const BASE_MODULE_NAME = "League of Legends.exe"
 const PROCESS_ALL_ACCES uint32 = (0x000F0000 | 0x00100000 | 0xFFF)
 
-func Hook() (ProcessHook, error) {
+func GetHook() (ProcessHook, error) {
 	var processHook ProcessHook
 	window := win.FindWindow(StringToUTF16PtrElseNil("RiotWindowClass"), nil)
 	processHook.Window = window
@@ -35,7 +49,6 @@ func Hook() (ProcessHook, error) {
 		return processHook, err
 	}
 	processHook.ModuleBaseAddr = int(moduleBaseAddr)
-
 	return processHook, nil
 }
 

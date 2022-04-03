@@ -2,10 +2,10 @@ package unitmanager
 
 import (
 	"fmt"
-	"framework-memory-go/src/hook"
+	Hook "framework-memory-go/src/hook"
 	"framework-memory-go/src/memory"
 	"framework-memory-go/src/offset"
-	"unsafe"
+	"sync"
 )
 
 type GamePosition struct {
@@ -18,7 +18,7 @@ type GameUnit struct {
 	Address           uint
 	Name              string
 	LastVisibleTime   float32
-	Team              int
+	Team              int32
 	Health            float32
 	MaxHealth         float32
 	BaseAttack        float32
@@ -28,14 +28,14 @@ type GameUnit struct {
 	MagicResist       float32
 	Duration          float32
 	IsVisible         bool
-	ObjectIndex       int
+	ObjectIndex       int32
 	Crit              float32
 	CritMulti         float32
 	AbilityPower      float32
 	AttackSpeedMulti  float32
 	MovementSpeed     float32
-	NetworkID         int
-	SpawnCount        int
+	NetworkID         int32
+	SpawnCount        int32
 	IsAlive           bool
 	AttackRange       float32
 	IsTargetable      bool
@@ -58,128 +58,99 @@ type UnitManager struct {
 
 const (
 	OBJECT_MANAGER_BUFF int = 256
-	MAX_UNITS           int = 2048
+	MAX_UNITS           int = 500
+	ARRAY_HERO_LIST     int = 0x04
+	ARRAY_HERO_LENGTH   int = 0x08
 )
 
-func Update(hook hook.ProcessHook) (UnitManager, error) {
-	var unitManager UnitManager
-	objectManagerOffset, err := memory.ReadInt(hook, hook.ModuleBaseAddr+offset.OBJECTMANAGER)
+var (
+	HOOK        Hook.ProcessHook = Hook.HOOK
+	unitReads   int              = 0
+	UNITMANAGER UnitManager
+	mu          = &sync.Mutex{}
+)
+
+func Update() error {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updateChampions()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updateMinions()
+	}()
+
+	wg.Wait()
+	return nil
+}
+
+func updateChampions() {
+	hero, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIHeroClient)
 	if err != nil {
-		return unitManager, err
+		fmt.Println("Error in AIHeroClient ", err)
 	}
-	if objectManagerOffset <= 0 {
-		return unitManager, fmt.Errorf("error to find objectManagerOffset")
-	}
-
-	objetManager, err := memory.Read(hook, objectManagerOffset, OBJECT_MANAGER_BUFF)
+	heroArray, err := memory.ReadInt(HOOK.Process, hero+0x04)
 	if err != nil {
-		return unitManager, err
+		fmt.Println("Error in heroArray ", err)
 	}
-
-	scan := scanUnits(hook, objetManager, unitManager)
-	if scan {
-		return unitManager, nil
-	}
-	return unitManager, fmt.Errorf("Error in scan units.")
-}
-
-func scanUnits(hook hook.ProcessHook, objectMangaer []byte, unitManager UnitManager) bool {
-	destint := make([]int32, 1)
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(objectMangaer)), objectMangaer[offset.OBJECTMAPCOUNT:])
-	if destint[0] <= 0 {
-		return false
-	}
-
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(objectMangaer)), objectMangaer[offset.OBJECTMAPROOT:])
-	rootUnitAddress := destint[0]
-	if rootUnitAddress <= 0 {
-		return false
-	}
-
-	var unitReads int32 = 0
-	scanUnit(hook, rootUnitAddress, unitReads, unitManager)
-	////
-	// for unitsRead <= MAX_UNITS || notContains(nodes, rootUnitAddress) {
-	// 	rootBuff, err := memory.Read(hook, int(rootUnitAddress), 0x18)
-	// 	if err != nil {
-	// 		continue
-	// 	}
-	// 	unitsRead++
-	// 	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[offset.OBJECTMAPNODENETID:])
-	// 	networkId := destint[0]
-	// 	if int(networkId) >= 0x40000000 {
-	// 		copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[offset.OBJECTMAPNODEOBJECT:])
-	// 		unitAddress := destint[0]
-	// 	}
-	// 	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[0x0:])
-	// 	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[0x4:])
-	// 	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[0x8:])
-	// }
-
-	return true
-}
-
-func scanUnit(hook hook.ProcessHook, address int32, unitReads int32, unitManager UnitManager) {
-	destint := make([]int32, 1)
-	nodes := make([]int32, MAX_UNITS)
-	unitReads++
-	if int(unitReads) >= MAX_UNITS || contains(nodes, address) {
-		return
-	}
-
-	_ = append(nodes, address)
-	rootBuff, err := memory.Read(hook, int(address), 0x30)
+	heroArrayLen, err := memory.ReadInt(HOOK.Process, hero+0x08)
 	if err != nil {
-		return
+		fmt.Println("Error in heroArrayLen ", err)
 	}
 
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[offset.OBJECTMAPNODENETID:])
-	networkId := destint[0]
-	if int(networkId) >= 0x40000000 {
-		copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[offset.OBJECTMAPNODEOBJECT:])
-		unitAddress := destint[0]
-		updateUnit(hook, networkId, unitAddress, unitManager)
+	var wg sync.WaitGroup
+	for i := 0; i < heroArrayLen*4; i += 4 {
+		var gameUnit GameUnit
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			gameUnit, err = info(heroArray+i, true)
+			if err != nil {
+				fmt.Println("Error in updateChampions.info ", err)
+			}
+			mu.Lock()
+			UNITMANAGER.Champions = append(UNITMANAGER.Champions, gameUnit)
+			mu.Unlock()
+		}(i)
 	}
-
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[0x0:])
-	scanUnit(hook, destint[0], unitReads, unitManager)
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[0x4:])
-	scanUnit(hook, destint[0], unitReads, unitManager)
-	copy(unsafe.Slice((*byte)(unsafe.Pointer(&destint[0])), unsafe.Sizeof(rootBuff)), rootBuff[0x8:])
-	scanUnit(hook, destint[0], unitReads, unitManager)
+	wg.Wait()
 }
 
-func updateUnit(hook hook.ProcessHook, networkId int32, address int32, unitManager UnitManager) {
-	if address <= 0 {
-		return
+func updateMinions() {
+	hero, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIMinionClient)
+	if err != nil {
+		fmt.Println("Error in AIMinionClient ", err)
 	}
-
-	var unit GameUnit
-	if val, ok := unitManager.Units[networkId]; ok {
-		unit = val
-		// update unit con deep en false y reemplazar el valor que se encuentra en el mapa de unidades
-		unitManager.Units[networkId] = unit
+	if err != nil {
+		fmt.Println(err)
 	}
-	// update unit con deep en true y agregarlo al mapa de la lista de unidades
-
-	unitManager.Units[networkId] = unit
-
-}
-
-func contains(s []int32, e int32) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
+	minionArray, err := memory.ReadInt(HOOK.Process, hero+0x04)
+	if err != nil {
+		fmt.Println("Error in minionArray ", err)
 	}
-	return false
-}
-
-func notContains(s []int32, e int32) bool {
-	for _, a := range s {
-		if a == e {
-			return false
-		}
+	minionArrayLen, err := memory.ReadInt(HOOK.Process, hero+0x08)
+	if err != nil {
+		fmt.Println("Error in minionArrayLen ", err)
 	}
-	return true
+	fmt.Println("minionArrayLen ", minionArrayLen)
+	var wg sync.WaitGroup
+	for i := 0; i < minionArrayLen*4; i += 4 {
+		var gameUnit GameUnit
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			gameUnit, err = info(minionArray+i, true)
+			if err != nil {
+				fmt.Println("Error in updateMinions.info ", err)
+			}
+			mu.Lock()
+			UNITMANAGER.Minions = append(UNITMANAGER.Minions, gameUnit)
+			mu.Unlock()
+		}(i)
+	}
+	wg.Wait()
 }

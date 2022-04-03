@@ -1,15 +1,15 @@
 package offset
 
 const (
-	GAMETIME         int = 0x310DF84 //F3 0F 11 05 ? ? ? ? 8B 49
-	OBJECTMANAGER    int = 0x187983  //89 ? ? ? ? ? 57 C7 06 ? ? ? ? 66 C7 46 04 ? ?
-	LOCALPLAYER      int = 0x31168D4 //51 8B 0D ? ? ? ? 85 C9 74 26
-	UNDERMOUSEOBJECT int = 0x310A9D8 //8B 0D ? ? ? ? C7 04 24 ? ? ? ? FF 74 24 58 - 89 0D ? ? ? ? C7 41 ? ? ? ? ? C7 41 ? ? ? ? ? C7 01 ? ? ? ?
+	GAMETIME         int = 0x31023CC //F3 0F 11 05 ? ? ? ? 8B 49
+	OBJECTMANAGER    int = 0x24B9BB0 //89 ? ? ? ? ? 57 C7 06 ? ? ? ? 66 C7 46 04 ? ?
+	LOCALPLAYER      int = 0x310B314 //51 8B 0D ? ? ? ? 85 C9 74 26
+	UNDERMOUSEOBJECT int = 0x30FED10 //8B 0D ? ? ? ? C7 04 24 ? ? ? ? FF 74 24 58 - 89 0D ? ? ? ? C7 41 ? ? ? ? ? C7 41 ? ? ? ? ? C7 01 ? ? ? ?
 	ZOOMCLASS        int = 0x310D610 //A3 ? ? ? ? 83 FA 10 72 32
-	CHAT             int = 0x3116F60 //8B 0D ? ? ? ? 8A D8 85
-	VIEWPROJMATRICES int = 0x3140F40
-	RENDERER         int = 0x3143DE0
-	MINIMAPOBJECT    int = 0x310F288
+	CHAT             int = 0x310B3E4 //0x31023CCL //8B 0D ? ? ? ? 8A D8 85
+	VIEWPROJMATRICES int = 0x3135818 //B9 ? ? ? ? 0F 10 80
+	RENDERER         int = 0x3138718 //8B 0D ? ? ? ? 50 E8 ? ? ? ? 5E 8B
+	MINIMAPOBJECT    int = 0x310240C //8B 1D ? ? ? ? 85 DB 74 19
 
 	OBJINDEX             int = 0x20  //always the same
 	OBJTEAM              int = 0x4C  //always the same
@@ -22,7 +22,7 @@ const (
 	OBJSRCINDEX          int = 0x2AC //always the same
 	OBJMANA              int = 0x2B4
 	OBJMAXMANA           int = 0x2C4
-	OBJRECALLSTATE       int = 0xDA8
+	OBJRECALLSTATE       int = 0xD90
 	OBJHEALTH            int = 0xDB4
 	OBJMAXHEALTH         int = 0xDC4
 	OBJABILITYHASTE      int = 0x110C
@@ -37,7 +37,7 @@ const (
 	OBJSPELLBOOK         int = 0x27F8
 	OBJTRANSFORMATION    int = 0x3040 //always the same
 	OBJNAME              int = 0x2BE4
-	OBJLVL               int = 0x339C
+	OBJLVL               int = 0x33A4
 	OBJSIZEMULTIPLIER    int = 0x12D4
 	OBJEXPIRY            int = 0x298 //always the same
 	OBJCRIT              int = 0x12E0
@@ -118,13 +118,13 @@ const (
 	SPELLDATAMISSILENAME         int = 0x6C
 	SPELLSLOTSMITETIMER          int = 0x64
 	SPELLSLOTSMITECHARGES        int = 0x58
-	SPELLSLOTITEMMAXSTACKCOUNT   int = 0x60
-	SPELLSLOTITEMNEXTREFILLTIME  int = 0x64
-	SPELLSLOTITEMSTACKSTATE      int = 0x70
-	SPELLSLOTITEMACTIVESTATE     int = 0x74
-	SPELLSLOTITEMCOOLDOWN        int = 0x78
-	SPELLSLOTITEMTARGETINGCLIENT int = 0x138
-	SPELLSLOTITEMNAME            int = 0x13C
+	SPELLSLOTITEMMAXSTACKCOUNT   int = 0x6
+	SPELLSLOTITEMNEXTREFILLTIME  int = 0x6
+	SPELLSLOTITEMSTACKSTATE      int = 0x7
+	SPELLSLOTITEMACTIVESTATE     int = 0x7
+	SPELLSLOTITEMCOOLDOWN        int = 0x7
+	SPELLSLOTITEMTARGETINGCLIENT int = 0x13
+	SPELLSLOTITEMNAME            int = 0x13
 
 	//these never change
 	OBJECTMAPCOUNT      int = 0x2C
@@ -160,22 +160,29 @@ const (
 	AIMANAGERCURRENTSEGMENT     int = 0x1C4
 	AIMANAGERDASHSPEED          int = 0x1F8 //Ghost Spell . si no viene el speed is not dashing
 	AIMANAGERVELOCITY           int = 0x2F0
-	AIMANAGERPOINTERPATH        int = 0x1E4
+	AIMANAGERPOINTERPATHSTART   int = 0x1E4 //Vector3 list
+	AIMANAGERPOINTERPATHEND     int = 0x1E8 //Vector3 list
 
 	// TestGamePing
-	TESTGAMEPINGA int = 0x30E1604 //A1 ?? ?? ?? ?? 85 C0 74 07 C7 40 ?? ?? ?? ?? ?? C2
+	TESTGAMEPINGA int = 0x310B7FC //A1 ?? ?? ?? ?? 85 C0 74 07 C7 40 ?? ?? ?? ?? ?? C2
 	TESTGAMEPINGB int = 0x3c
 	TESTGAMEPINGC int = 0x28
 
-	MISSILEMAP       int = 0x34F848C //12.1
-	MISSILEMAPCOUNT  int = 0x78      //12.1
-	MISSILEMAPROOT   int = 0x74      //12.1
-	MISSILEMAPKEY    int = 0x10      //12.1
-	MISSILEMAPVAL    int = 0x14      //12.1
-	MISSILESPELLINFO int = 0x278     //0x8L //12.1
-	MISSILESRCIDX    int = 0x2DC     //0x6CL //12.1
-	MISSILEDESTIDX   int = 0x310     //0xC0L //12.1
-	MISSILESTARTPOS  int = 0x2F4     //0x90L //12.1
-	MISSILEENDPOS    int = 0x300     //0x9CL //12.1
+	MISSILEMAP         int = 0x34F848C //12.1
+	MISSILEMAPCOUNT    int = 0x78      //12.1
+	MISSILEMAPROOT     int = 0x74      //12.1
+	MISSILEMAPKEY      int = 0x10      //12.1
+	MISSILEMAPVAL      int = 0x14      //12.1
+	MISSILESPELLINFO   int = 0x278     //0x8L //12.1
+	MISSILESRCIDX      int = 0x2DC     //0x6CL //12.1
+	MISSILEDESTIDX     int = 0x330     //0xC0L //12.1
+	MISSILEDESTIDXTEST int = 0x334     //0xC0L //12.1
+	MISSILESTARTPOS    int = 0x2F4     //0x90L //12.1
+	MISSILEENDPOS      int = 0x300     //0x9CL //12.1
+	MISSILESPEED       int = 0x68      //12.1
 
+	AIMissileClient int = 0x0310B38C
+	AIMinionClient  int = 0x024B9C44
+	AITurretClient  int = 0x030FFB30
+	AIHeroClient    int = 0x0186B674
 )
