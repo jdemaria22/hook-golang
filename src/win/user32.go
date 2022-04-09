@@ -8,6 +8,7 @@
 package win
 
 import (
+	"fmt"
 	"syscall"
 	"unsafe"
 
@@ -1599,6 +1600,48 @@ type WINDOWPLACEMENT struct {
 	RcNormalPosition RECT
 }
 
+type WINDOWCOMPOSITIONATTRIBDATA struct {
+	Attrib WINDOWCOMPOSITIONATTRIB
+	PvData unsafe.Pointer
+	CbData uintptr
+}
+
+type WINDOWCOMPOSITIONATTRIB uint32
+
+const (
+	WCA_UNDEFINED                     WINDOWCOMPOSITIONATTRIB = 0
+	WCA_NCRENDERING_ENABLED           WINDOWCOMPOSITIONATTRIB = 1
+	WCA_NCRENDERING_POLICY            WINDOWCOMPOSITIONATTRIB = 2
+	WCA_TRANSITIONS_FORCEDISABLED     WINDOWCOMPOSITIONATTRIB = 3
+	WCA_ALLOW_NCPAINT                 WINDOWCOMPOSITIONATTRIB = 4
+	WCA_CAPTION_BUTTON_BOUNDS         WINDOWCOMPOSITIONATTRIB = 5
+	WCA_NONCLIENT_RTL_LAYOUT          WINDOWCOMPOSITIONATTRIB = 6
+	WCA_FORCE_ICONIC_REPRESENTATION   WINDOWCOMPOSITIONATTRIB = 7
+	WCA_EXTENDED_FRAME_BOUNDS         WINDOWCOMPOSITIONATTRIB = 8
+	WCA_HAS_ICONIC_BITMAP             WINDOWCOMPOSITIONATTRIB = 9
+	WCA_THEME_ATTRIBUTES              WINDOWCOMPOSITIONATTRIB = 10
+	WCA_NCRENDERING_EXILED            WINDOWCOMPOSITIONATTRIB = 11
+	WCA_NCADORNMENTINFO               WINDOWCOMPOSITIONATTRIB = 12
+	WCA_EXCLUDED_FROM_LIVEPREVIEW     WINDOWCOMPOSITIONATTRIB = 13
+	WCA_VIDEO_OVERLAY_ACTIVE          WINDOWCOMPOSITIONATTRIB = 14
+	WCA_FORCE_ACTIVEWINDOW_APPEARANCE WINDOWCOMPOSITIONATTRIB = 15
+	WCA_DISALLOW_PEEK                 WINDOWCOMPOSITIONATTRIB = 16
+	WCA_CLOAK                         WINDOWCOMPOSITIONATTRIB = 17
+	WCA_CLOAKED                       WINDOWCOMPOSITIONATTRIB = 18
+	WCA_ACCENT_POLICY                 WINDOWCOMPOSITIONATTRIB = 19
+	WCA_FREEZE_REPRESENTATION         WINDOWCOMPOSITIONATTRIB = 20
+	WCA_EVER_UNCLOAKED                WINDOWCOMPOSITIONATTRIB = 21
+	WCA_VISUAL_OWNER                  WINDOWCOMPOSITIONATTRIB = 22
+	WCA_HOLOGRAPHIC                   WINDOWCOMPOSITIONATTRIB = 23
+	WCA_EXCLUDED_FROM_DDA             WINDOWCOMPOSITIONATTRIB = 24
+	WCA_PASSIVEUPDATEMODE             WINDOWCOMPOSITIONATTRIB = 25
+	WCA_USEDARKMODECOLORS             WINDOWCOMPOSITIONATTRIB = 26
+	WCA_CORNER_STYLE                  WINDOWCOMPOSITIONATTRIB = 27
+	WCA_PART_COLOR                    WINDOWCOMPOSITIONATTRIB = 28
+	WCA_DISABLE_MOVESIZE_FEEDBACK     WINDOWCOMPOSITIONATTRIB = 29
+	WCA_LAST                          WINDOWCOMPOSITIONATTRIB = 30
+)
+
 type DRAWTEXTPARAMS struct {
 	CbSize        uint32
 	ITabLength    int32
@@ -1885,6 +1928,7 @@ var (
 	setTimer                    *windows.LazyProc
 	setWinEventHook             *windows.LazyProc
 	setWindowLong               *windows.LazyProc
+	setWindowCompositionAtt     *windows.LazyProc
 	setWindowLongPtr            *windows.LazyProc
 	setWindowPlacement          *windows.LazyProc
 	setWindowPos                *windows.LazyProc
@@ -2039,7 +2083,8 @@ func init() {
 	setScrollInfo = libuser32.NewProc("SetScrollInfo")
 	setTimer = libuser32.NewProc("SetTimer")
 	setWinEventHook = libuser32.NewProc("SetWinEventHook")
-	setWindowLong = libuser32.NewProc("SetWindowLongW")
+	setWindowLong = libuser32.NewProc("SetWindowLongA")
+	setWindowCompositionAtt = libuser32.NewProc("SetWindowCompositionAttribute")
 	// On 32 bit SetWindowLongPtrW is not available
 	if is64bit {
 		setWindowLongPtr = libuser32.NewProc("SetWindowLongPtrW")
@@ -3368,26 +3413,41 @@ func SetWinEventHook(eventMin uint32, eventMax uint32, hmodWinEventProc HMODULE,
 	return HWINEVENTHOOK(ret), nil
 }
 
-func SetWindowLong(hWnd HWND, index, value int32) int32 {
-	ret, _, _ := syscall.Syscall(setWindowLong.Addr(), 3,
+func SetWindowLong(hWnd HWND, index, value int32) (int32, error) {
+	ret, _, err := syscall.Syscall(setWindowLong.Addr(), 3,
 		uintptr(hWnd),
 		uintptr(index),
 		uintptr(value))
+	if ret == 0 {
+		fmt.Println(err)
+		return int32(ret), err
+	}
 
-	return int32(ret)
+	return int32(ret), nil
 }
 
 func SetWindowLongPtr(hWnd HWND, index int, value uintptr) uintptr {
-	ret, _, _ := syscall.Syscall(setWindowLongPtr.Addr(), 3,
+	ret, _, err := syscall.Syscall(setWindowLongPtr.Addr(), 3,
 		uintptr(hWnd),
 		uintptr(index),
 		value)
-
+	if ret == 0 {
+		fmt.Println(err)
+	}
 	return ret
 }
 
 func SetWindowPlacement(hWnd HWND, lpwndpl *WINDOWPLACEMENT) bool {
 	ret, _, _ := syscall.Syscall(setWindowPlacement.Addr(), 2,
+		uintptr(hWnd),
+		uintptr(unsafe.Pointer(lpwndpl)),
+		0)
+
+	return ret != 0
+}
+
+func SetWindowCompositionAtt(hWnd HWND, lpwndpl *WINDOWCOMPOSITIONATTRIBDATA) bool {
+	ret, _, _ := syscall.Syscall(setWindowCompositionAtt.Addr(), 2,
 		uintptr(hWnd),
 		uintptr(unsafe.Pointer(lpwndpl)),
 		0)

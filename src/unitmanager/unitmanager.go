@@ -72,6 +72,8 @@ var (
 
 func Update() error {
 	var wg sync.WaitGroup
+	var unitManager UnitManager
+	UNITMANAGER = unitManager
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -136,7 +138,6 @@ func updateMinions() {
 	if err != nil {
 		fmt.Println("Error in minionArrayLen ", err)
 	}
-	fmt.Println("minionArrayLen ", minionArrayLen)
 	var wg sync.WaitGroup
 	for i := 0; i < minionArrayLen*4; i += 4 {
 		var gameUnit GameUnit
