@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"framework-memory-go/src/gui"
 	"framework-memory-go/src/hook"
 	"framework-memory-go/src/module"
+	"framework-memory-go/src/scripts"
+	"framework-memory-go/src/unitmanager"
 	"framework-memory-go/src/win"
-	"image/color"
 	"log"
-	"math"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -36,6 +35,8 @@ func init() {
 		fmt.Println(err)
 	}
 	HOOK = processHook
+	unitmanager.LoadUnitData()
+	unitmanager.SpelltData()
 }
 
 func main() {
@@ -44,6 +45,7 @@ func main() {
 	ebiten.SetWindowTitle(NAME)
 	ebiten.SetWindowResizable(false)
 	ebiten.SetWindowDecorated(false)
+	ebiten.SetFullscreen(true)
 	ebiten.SetScreenTransparent(true)
 	ebiten.SetWindowFloating(true)
 	ebiten.SetMaxTPS(200)
@@ -72,30 +74,15 @@ func (g *Game) Update() error {
 			if err != nil {
 				fmt.Println("error in  setWindowLong: ", err, r2)
 			}
+			module.FirstUpdate()
 		}()
 	}
-
+	module.Update()
 	return nil
 }
 
-func (g *Game) drawCircle(screen *ebiten.Image, x, y, radius int, clr color.Color) {
-	radius64 := float64(radius)
-	minAngle := math.Acos(1 - 1/radius64)
-
-	for angle := float64(0); angle <= 360; angle += minAngle {
-		xDelta := radius64 * math.Cos(angle)
-		yDelta := radius64 * math.Sin(angle)
-
-		x1 := int(math.Round(float64(x) + xDelta))
-		y1 := int(math.Round(float64(y) + yDelta))
-
-		screen.Set(x1, y1, clr)
-	}
-}
-
 func (g *Game) Draw(screen *ebiten.Image) {
-	module.Update()
-	gui.DrawChamps(screen)
+	scripts.UpdateDrawings(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
 }
 

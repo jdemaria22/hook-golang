@@ -15,45 +15,56 @@ type GamePosition struct {
 }
 
 type GameUnit struct {
-	Address           uint
-	Name              string
-	LastVisibleTime   float32
-	Team              int32
-	Health            float32
-	MaxHealth         float32
-	BaseAttack        float32
-	BonusAttack       float32
-	Armor             float32
-	BonusArmor        float32
-	MagicResist       float32
-	Duration          float32
-	IsVisible         bool
-	ObjectIndex       int32
-	Crit              float32
-	CritMulti         float32
-	AbilityPower      float32
-	AttackSpeedMulti  float32
-	MovementSpeed     float32
-	NetworkID         int32
-	SpawnCount        int32
-	IsAlive           bool
-	AttackRange       float32
-	IsTargetable      bool
-	Level             float32
-	GameplayRadius    float32
-	SizeMultiplier    float32
-	IsChampion        bool
-	IsImportantJungle bool
-	Position          GamePosition
-	Direction         GamePosition
+	Address              uint
+	Name                 string
+	LastVisibleTime      float32
+	Team                 int32
+	Health               float32
+	MaxHealth            float32
+	BaseAttack           float32
+	BonusAttack          float32
+	Armor                float32
+	BonusArmor           float32
+	MagicResist          float32
+	Duration             float32
+	IsVisible            bool
+	ObjectIndex          int32
+	Crit                 float32
+	CritMulti            float32
+	AbilityPower         float32
+	AttackSpeedMulti     float32
+	MovementSpeed        float32
+	NetworkID            int32
+	SpawnCount           int32
+	IsAlive              bool
+	AttackRange          float32
+	IsTargetable         bool
+	Level                float32
+	GameplayRadius       float32
+	SizeMultiplier       float32
+	IsChampion           bool
+	IsImportantJungle    bool
+	Position             GamePosition
+	Direction            GamePosition
+	HealthBarHeight      float32
+	BaseMoveSpeed        float32
+	AttackRangeJson      float32
+	AttackSpeed          float32
+	AttackSpeedRatio     float32
+	AcquisitionRange     float32
+	SelectionRadius      float32
+	PathingRadius        float32
+	GameplayRadiusJson   float32
+	BasicAtkMissileSpeed float32
+	BasicAtkWindup       float32
+	Tags                 []string
 }
 
 type UnitManager struct {
-	Champions []GameUnit
+	Champions map[int]GameUnit
 	Monsters  []GameUnit
 	Minions   []GameUnit
 	Turrets   []GameUnit
-	Units     map[int32]GameUnit
 }
 
 const (
@@ -106,16 +117,27 @@ func updateChampions() {
 
 	var wg sync.WaitGroup
 	for i := 0; i < heroArrayLen*4; i += 4 {
-		var gameUnit GameUnit
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			gameUnit, err = info(heroArray+i, true)
+			idunit := heroArray + i
+			if val, ok := UNITMANAGER.Champions[idunit]; ok {
+				gameUnit, err := info(idunit, true, val)
+				if err != nil {
+					fmt.Println("Error in updateChampions.info ", err)
+				}
+				mu.Lock()
+				UNITMANAGER.Champions[idunit] = gameUnit
+				mu.Unlock()
+			}
+			var gameUnit GameUnit
+			gameUnit, err = info(idunit, false, gameUnit)
 			if err != nil {
 				fmt.Println("Error in updateChampions.info ", err)
 			}
+			gameUnit = addChampInfoFromJson(gameUnit)
 			mu.Lock()
-			UNITMANAGER.Champions = append(UNITMANAGER.Champions, gameUnit)
+			UNITMANAGER.Champions[idunit] = gameUnit
 			mu.Unlock()
 		}(i)
 	}
@@ -144,7 +166,7 @@ func updateMinions() {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			gameUnit, err = info(minionArray+i, true)
+			gameUnit, err = info(minionArray+i, true, gameUnit)
 			if err != nil {
 				fmt.Println("Error in updateMinions.info ", err)
 			}

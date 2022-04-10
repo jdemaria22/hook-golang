@@ -11,8 +11,7 @@ const (
 	INFO_SIZE int = 13224
 )
 
-func info(address int, deep bool) (GameUnit, error) {
-	var gameUnit GameUnit
+func info(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 	data, err := memory.ReadInt(HOOK.Process, int(address))
 	if err != nil {
 		fmt.Println("error in info. data: ", err)
@@ -225,4 +224,25 @@ func info(address int, deep bool) (GameUnit, error) {
 	wg.Wait()
 
 	return gameUnit, nil
+}
+
+func addChampInfoFromJson(gameUnit GameUnit) GameUnit {
+	for i := 0; i < len(UNIT_DATA); i++ {
+		if UNIT_DATA[i].Name == gameUnit.Name {
+			gameUnit.AttackRangeJson = UNIT_DATA[i].AttackRange
+			gameUnit.AcquisitionRange = UNIT_DATA[i].AcquisitionRange
+			gameUnit.HealthBarHeight = UNIT_DATA[i].HealthBarHeight
+			gameUnit.BaseMoveSpeed = UNIT_DATA[i].BaseMoveSpeed
+			gameUnit.AttackSpeed = UNIT_DATA[i].AttackSpeed
+			gameUnit.AttackSpeedRatio = UNIT_DATA[i].AttackSpeedRatio
+			gameUnit.SelectionRadius = UNIT_DATA[i].SelectionRadius
+			gameUnit.PathingRadius = UNIT_DATA[i].PathingRadius
+			gameUnit.GameplayRadiusJson = UNIT_DATA[i].GameplayRadius
+			gameUnit.BasicAtkMissileSpeed = UNIT_DATA[i].BasicAtkMissileSpeed
+			gameUnit.BasicAtkWindup = UNIT_DATA[i].BasicAtkWindup
+			gameUnit.Tags = UNIT_DATA[i].Tags
+		}
+		return gameUnit
+	}
+	return gameUnit
 }
