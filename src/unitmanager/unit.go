@@ -224,52 +224,5 @@ func info(address int, deep bool) (GameUnit, error) {
 
 	wg.Wait()
 
-	// fmt.Println("gameUnit.Position ,", gameUnit.Position)
-
-	// fmt.Println("gameUnit.Direction ,", gameUnit.Direction)
-
-	// fmt.Println("gameUnit.Health ", gameUnit.Health)
-
-	// fmt.Println("gameUnit.MaxHealth ", gameUnit.MaxHealth)
-
-	// fmt.Println("gameUnit.BaseAttack ", gameUnit.BaseAttack)
-
-	// fmt.Println("gameUnit.BonusAttack ", gameUnit.BonusAttack)
-
-	// fmt.Println("gameUnit.Armor ", gameUnit.Armor)
-
-	// fmt.Println("gameUnit.BonusArmor ", gameUnit.BonusArmor)
-
-	// fmt.Println("gameUnit.MagicResist ", gameUnit.MagicResist)
-
-	// fmt.Println("gameUnit.Duration ", gameUnit.Duration)
-
-	// fmt.Println("gameUnit.Crit ", gameUnit.Crit)
-
-	// fmt.Println("gameUnit.CritMulti ", gameUnit.CritMulti)
-
-	// fmt.Println("gameUnit.MagicResist ", gameUnit.MagicResist)
-
-	// fmt.Println("gameUnit.AbilityPower ", gameUnit.AbilityPower)
-
-	// fmt.Println("gameUnit.AttackSpeedMulti ", gameUnit.AttackSpeedMulti)
-
-	// fmt.Println("gameUnit.MovementSpeed ", gameUnit.MovementSpeed)
-
-	// fmt.Println("gameUnit.AttackRange ", gameUnit.AttackRange)
-
-	// fmt.Println("gameUnit.Level ", gameUnit.Level)
-
-	// fmt.Println("gameUnit.SizeMultiplier ", gameUnit.SizeMultiplier)
-
-	// fmt.Println("gameUnit.ObjectIndex ", gameUnit.ObjectIndex)
-
-	// fmt.Println("gameUnit.SpawnCount ", gameUnit.SpawnCount)
-
-	// fmt.Println("gameUnit.NetworkID ", gameUnit.NetworkID)
-	// // gameUnit.IsTargetable = destfloat[0]
-
-	// // gameUnit.IsVisible = destfloat[0]
-
 	return gameUnit, nil
 }

@@ -46,8 +46,8 @@ func main() {
 	ebiten.SetWindowDecorated(false)
 	ebiten.SetScreenTransparent(true)
 	ebiten.SetWindowFloating(true)
-	ebiten.SetMaxTPS(60)
-	ebiten.SetVsyncEnabled(false)
+	ebiten.SetMaxTPS(200)
+	ebiten.SetVsyncEnabled(true)
 	err := ebiten.RunGame(NewGame())
 	if err != nil {
 		log.Fatal(err)
@@ -95,7 +95,6 @@ func (g *Game) drawCircle(screen *ebiten.Image, x, y, radius int, clr color.Colo
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	module.Update()
-	screen.Clear()
 	gui.DrawChamps(screen)
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
 }
