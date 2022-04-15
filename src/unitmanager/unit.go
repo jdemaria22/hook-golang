@@ -10,7 +10,7 @@ import (
 
 const (
 	INFO_SIZE         int = 0x4000
-	INFO_SIZE_MINIONS int = 6000
+	INFO_SIZE_MINIONS int = 11184
 )
 
 func infoMinion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
@@ -27,6 +27,29 @@ func infoMinion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 	}
 	var wg sync.WaitGroup
 	var off int
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if deep {
+			val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
+			gameUnit.Name = memory.CopyString(val)
+			gameUnit = addChampInfoFromJson(gameUnit)
+			if contains(gameUnit.Tags, Unit_Monster) {
+				gameUnit.UnitType = UnitTypeMonster
+			}
+			if contains(gameUnit.Tags, Unit_Minion) {
+				gameUnit.UnitType = UnitTypeMinion
+			}
+			if contains(gameUnit.Tags, Unit_Ward) {
+				gameUnit.UnitType = UnitTypeWard
+			}
+			if contains(gameUnit.Tags, Unit_Structure) {
+				gameUnit.UnitType = UnitTypeStructure
+			}
+		}
+	}()
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -103,7 +126,6 @@ func infoChampion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 			val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
 			gameUnit.Name = memory.CopyString(val)
 			gameUnit = addChampInfoFromJson(gameUnit)
-			fmt.Println(gameUnit.BasicAtkWindup)
 		}
 	}()
 
@@ -319,4 +341,13 @@ func addChampInfoFromJson(gameUnit GameUnit) GameUnit {
 		}
 	}
 	return gameUnit
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if strings.Contains(a, e) {
+			return true
+		}
+	}
+	return false
 }

@@ -58,13 +58,12 @@ type GameUnit struct {
 	BasicAtkMissileSpeed float32
 	BasicAtkWindup       float32
 	Tags                 []string
+	UnitType             int
 }
 
 type UnitManager struct {
 	Champions map[int]GameUnit
-	Monsters  []GameUnit
-	Minions   []GameUnit
-	Turrets   []GameUnit
+	Minions   map[int]GameUnit
 }
 
 const (
@@ -76,6 +75,7 @@ const (
 
 func init() {
 	UNITMANAGER.Champions = make(map[int]GameUnit)
+	UNITMANAGER.Minions = make(map[int]GameUnit)
 }
 
 var (
@@ -150,8 +150,8 @@ func updateChampions() {
 }
 
 func updateMinions() {
-	var newUnit []GameUnit
-	UNITMANAGER.Minions = newUnit
+	minions := make(map[int]GameUnit)
+
 	hero, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIMinionClient)
 	if err != nil {
 		fmt.Println("Error in AIMinionClient ", err)
@@ -168,11 +168,21 @@ func updateMinions() {
 		fmt.Println("Error in minionArrayLen ", err)
 	}
 	for i := 0; i < minionArrayLen*4; i += 4 {
-		var gameUnit GameUnit
-		gameUnit, err = infoMinion(minionArray+i, true, gameUnit)
-		if err != nil {
-			fmt.Println("Error in updateMinions.info ", err)
+		idunit := minionArray + i
+		if val, ok := UNITMANAGER.Minions[idunit]; ok {
+			gameUnit, err := infoMinion(idunit, false, val)
+			if err != nil {
+				fmt.Println("Error in updateChampions.info ", err)
+			}
+			minions[idunit] = gameUnit
+		} else {
+			var gameUnit GameUnit
+			gameUnit, err = infoMinion(minionArray+i, true, gameUnit)
+			if err != nil {
+				fmt.Println("Error in updateMinions.info ", err)
+			}
+			minions[idunit] = gameUnit
 		}
-		UNITMANAGER.Minions = append(UNITMANAGER.Minions, gameUnit)
 	}
+	UNITMANAGER.Minions = minions
 }

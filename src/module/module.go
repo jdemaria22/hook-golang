@@ -46,8 +46,5 @@ func Update() {
 			fmt.Println(err)
 		}
 	}()
-	// for i := 0; i < len(unitmanager.UNITMANAGER.Champions); i++ {
-	// 	fmt.Println(unitmanager.UNITMANAGER.Champions[i].BasicAtkWindup)
-	// }
 	wg.Wait()
 }
