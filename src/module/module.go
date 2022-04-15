@@ -12,6 +12,7 @@ import (
 func Update() {
 	var wg sync.WaitGroup
 	var err error
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -20,7 +21,6 @@ func Update() {
 			fmt.Println(err)
 		}
 	}()
-
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -29,7 +29,6 @@ func Update() {
 			fmt.Println(err)
 		}
 	}()
-
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -47,18 +46,8 @@ func Update() {
 			fmt.Println(err)
 		}
 	}()
-	wg.Wait()
-}
-
-func FirstUpdate() {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := unitmanager.Update()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
+	// for i := 0; i < len(unitmanager.UNITMANAGER.Champions); i++ {
+	// 	fmt.Println(unitmanager.UNITMANAGER.Champions[i].BasicAtkWindup)
+	// }
 	wg.Wait()
 }

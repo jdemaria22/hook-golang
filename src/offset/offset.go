@@ -1,50 +1,51 @@
 package offset
 
 const (
-	GAMETIME         int = 0x31023CC //F3 0F 11 05 ? ? ? ? 8B 49
-	OBJECTMANAGER    int = 0x24B9BB0 //89 ? ? ? ? ? 57 C7 06 ? ? ? ? 66 C7 46 04 ? ?
-	LOCALPLAYER      int = 0x310B314 //51 8B 0D ? ? ? ? 85 C9 74 26
-	UNDERMOUSEOBJECT int = 0x30FED10 //8B 0D ? ? ? ? C7 04 24 ? ? ? ? FF 74 24 58 - 89 0D ? ? ? ? C7 41 ? ? ? ? ? C7 41 ? ? ? ? ? C7 01 ? ? ? ?
+	GAMETIME         int = 0x30ECC8C //F3 0F 11 05 ? ? ? ? 8B 49
+	OBJECTMANAGER    int = 0x24A4B90 //89 ? ? ? ? ? 57 C7 06 ? ? ? ? 66 C7 46 04 ? ?
+	LOCALPLAYER      int = 0x30F5BBC //51 8B 0D ? ? ? ? 85 C9 74 26
+	UNDERMOUSEOBJECT int = 0x30E95F0 //8B 0D ? ? ? ? C7 04 24 ? ? ? ? FF 74 24 58 - 89 0D ? ? ? ? C7 41 ? ? ? ? ? C7 41 ? ? ? ? ? C7 01 ? ? ? ?
 	ZOOMCLASS        int = 0x310D610 //A3 ? ? ? ? 83 FA 10 72 32
-	CHAT             int = 0x310B3E4 //0x31023CCL //8B 0D ? ? ? ? 8A D8 85
-	VIEWPROJMATRICES int = 0x3135818 //B9 ? ? ? ? 0F 10 80
-	RENDERER         int = 0x3138718 //8B 0D ? ? ? ? 50 E8 ? ? ? ? 5E 8B
-	MINIMAPOBJECT    int = 0x310240C //8B 1D ? ? ? ? 85 DB 74 19
+	CHAT             int = 0x30F5C94 //0x31023CCL //8B 0D ? ? ? ? 8A D8 85
+	VIEWPROJMATRICES int = 0x31203A0 //B9 ? ? ? ? 0F 10 80
+	RENDERER         int = 0x31232A0 //8B 0D ? ? ? ? 50 E8 ? ? ? ? 5E 8B
+	MINIMAPOBJECT    int = 0x30ECCCC //8B 1D ? ? ? ? 85 DB 74 19
 
 	OBJINDEX             int = 0x20  //always the same
 	OBJTEAM              int = 0x4C  //always the same
 	OBJMISSILENAME       int = 0x6C  //always the same
 	OBJNETWORKID         int = 0xCC  //always the same
-	OBJPOS               int = 0x1F4 //11.18
+	OBJPOS               int = 0x23C //11.18
 	OBJMISSILESPELLCAST  int = 0x250 //always the same
 	OBJVISIBILITY        int = 0x28C
 	OBJSPAWNCOUNT        int = 0x2A0
 	OBJSRCINDEX          int = 0x2AC //always the same
 	OBJMANA              int = 0x2B4
 	OBJMAXMANA           int = 0x2C4
-	OBJRECALLSTATE       int = 0xD90
+	OBJRECALLNAME        int = 0xD98
+	OBJRECALLSTATE       int = OBJRECALLNAME + 0x10
 	OBJHEALTH            int = 0xDB4
-	OBJMAXHEALTH         int = 0xDC4
-	OBJABILITYHASTE      int = 0x110C
-	OBJLETHALITY         int = 0x11F8
-	OBJARMOR             int = 0x12E4
-	OBJBONUSARMOR        int = 0x12F0
-	OBJMAGICRES          int = 0x12EC
-	OBJBONUSMAGICRES     int = 0x12F0
-	OBJBASEATK           int = 0x12BC
-	OBJBONUSATK          int = 0x1234
-	OBJMOVESPEED         int = 0x12FC
-	OBJSPELLBOOK         int = 0x27F8
+	OBJMAXHEALTH         int = OBJHEALTH + 0x1
+	OBJABILITYHASTE      int = 0x16A0
+	OBJLETHALITY         int = 0x11C0
+	OBJARMOR             int = 0x12AC
+	OBJBONUSARMOR        int = OBJARMOR + 0x4
+	OBJMAGICRES          int = OBJARMOR + 0x8
+	OBJBONUSMAGICRES     int = 0x12B8
+	OBJBASEATK           int = 0x1284
+	OBJBONUSATK          int = 0x11FC
+	OBJMOVESPEED         int = 0x12C4
+	OBJSPELLBOOK         int = 0x27C0
 	OBJTRANSFORMATION    int = 0x3040 //always the same
-	OBJNAME              int = 0x2BE4
-	OBJLVL               int = 0x33A4
+	OBJNAME              int = 0x2BAC
+	OBJLVL               int = 0x33A0
 	OBJSIZEMULTIPLIER    int = 0x12D4
 	OBJEXPIRY            int = 0x298 //always the same
 	OBJCRIT              int = 0x12E0
 	OBJCRITMULTI         int = 0x12D0
-	OBJABILITYPOWER      int = 0x1788
-	OBJATKSPEEDMULTI     int = 0x12B8
-	OBJATKRANGE          int = 0x1304
+	OBJABILITYPOWER      int = 0x1750
+	OBJATKSPEEDMULTI     int = 0x1280
+	OBJATKRANGE          int = 0x12CC
 	OBJTARGETABLE        int = 0xD1C
 	OBJINVULNERABLE      int = 0x3EC
 	OBJISMOVING          int = 0x32EF //always the same
@@ -61,7 +62,9 @@ const (
 	OBJLIFESTEAL         int = 0x12A0
 	OBJCRITCHANCE        int = 0x12E0
 
-	OBJEXPERIENCE          int = 0x3394
+	OBJEXPERIENCE int = 0x337C
+	OBJLEVEL      int = OBJEXPERIENCE + 0x10
+
 	OBJAVAIABLESPELLPOINTS int = 0x33CC
 
 	OBJSUMMONERSPELL_D int = 0x3858
@@ -182,7 +185,15 @@ const (
 	MISSILESPEED       int = 0x68      //12.1
 
 	AIMissileClient int = 0x0310B38C
-	AIMinionClient  int = 0x024B9C44
-	AITurretClient  int = 0x030FFB30
-	AIHeroClient    int = 0x0186B674
+	AIMinionClient  int = 0x24A4C24
+	AITurretClient  int = 0x30EA410
+	AIHeroClient    int = 0x1856650
+
+// 	#define oManagerTemplate_Minions 0x24A4C24
+// #define oManagerTemplate_AttackableUnits 0x24A4BC8
+// #define oManagerTemplate_Turrets 0x30EA410
+// #define oManagerTemplate_Shops 0x30EA414
+// #define oManagerTemplate_Inhibitors 0x30F5D28
+// #define oMangerTemplate_Buildings 0x1855F10
+// #define oManagerTemplate_Heros 0x1856650
 )

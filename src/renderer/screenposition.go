@@ -6,8 +6,9 @@ type ScreenPosition struct {
 }
 
 const (
-	FLOAT_DIVISOR    float32 = 2.0
-	COORDW_BAD_VALUE float32 = 1.0
+	FLOAT_DIVISOR          float32 = 2.0
+	COORDW_BAD_VALUE       float32 = 1.0
+	SCREEN_MOVE_FULLSCRENN float32 = 22
 )
 
 func WorldToScreen(renderer Renderer, x float32, y float32, z float32) ScreenPosition {
@@ -23,11 +24,11 @@ func WorldToScreen(renderer Renderer, x float32, y float32, z float32) ScreenPos
 	middleX := coordX / coordW
 	middleY := coordY / coordW
 
-	screenX := (float32(1920/FLOAT_DIVISOR) * middleX) + (middleX + float32(1920/FLOAT_DIVISOR))
-	screenY := -(float32(1080/FLOAT_DIVISOR) * middleY) + (middleY + float32(1080/FLOAT_DIVISOR))
+	screenX := (1920 / FLOAT_DIVISOR * middleX) + (middleX + 1920/FLOAT_DIVISOR)
+	screenY := -(1080 / FLOAT_DIVISOR * middleY) + (middleY + 1080/FLOAT_DIVISOR)
 
 	screenPosition.X = screenX
-	screenPosition.Y = screenY
+	screenPosition.Y = screenY - SCREEN_MOVE_FULLSCRENN
 
 	return screenPosition
 }

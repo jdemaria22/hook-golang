@@ -74,77 +74,84 @@ const (
 	ARRAY_HERO_LENGTH   int = 0x08
 )
 
+func init() {
+	UNITMANAGER.Champions = make(map[int]GameUnit)
+}
+
 var (
-	HOOK        Hook.ProcessHook = Hook.HOOK
-	unitReads   int              = 0
-	UNITMANAGER UnitManager
-	mu          = &sync.Mutex{}
+	HOOK         Hook.ProcessHook = Hook.HOOK
+	unitReads    int              = 0
+	UNITMANAGER  UnitManager
+	mu           = sync.RWMutex{}
+	testMutex    sync.Mutex
+	wg           sync.WaitGroup
+	hero         = 0
+	heroArray    = 0
+	heroArrayLen = 0
 )
 
 func Update() error {
-	var wg sync.WaitGroup
-	var unitManager UnitManager
-	UNITMANAGER = unitManager
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		updateChampions()
 	}()
-
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		updateMinions()
 	}()
-
 	wg.Wait()
 	return nil
 }
 
 func updateChampions() {
-	hero, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIHeroClient)
-	if err != nil {
-		fmt.Println("Error in AIHeroClient ", err)
-	}
-	heroArray, err := memory.ReadInt(HOOK.Process, hero+0x04)
-	if err != nil {
-		fmt.Println("Error in heroArray ", err)
-	}
-	heroArrayLen, err := memory.ReadInt(HOOK.Process, hero+0x08)
-	if err != nil {
-		fmt.Println("Error in heroArrayLen ", err)
+	if hero == 0 {
+		herovalue, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIHeroClient)
+		if err != nil {
+			fmt.Println("Error in AIHeroClient ", err)
+		}
+		hero = herovalue
 	}
 
-	var wg sync.WaitGroup
+	if heroArray == 0 {
+		heroArrayValue, err := memory.ReadInt(HOOK.Process, hero+0x04)
+		if err != nil {
+			fmt.Println("Error in heroArray ", err)
+		}
+		heroArray = heroArrayValue
+	}
+
+	if heroArrayLen == 0 {
+		heroArrayLenValue, err := memory.ReadInt(HOOK.Process, hero+0x08)
+		if err != nil {
+			fmt.Println("Error in heroArrayLen ", err)
+		}
+		heroArrayLen = heroArrayLenValue
+	}
+	var err error
 	for i := 0; i < heroArrayLen*4; i += 4 {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			idunit := heroArray + i
-			if val, ok := UNITMANAGER.Champions[idunit]; ok {
-				gameUnit, err := info(idunit, true, val)
-				if err != nil {
-					fmt.Println("Error in updateChampions.info ", err)
-				}
-				mu.Lock()
-				UNITMANAGER.Champions[idunit] = gameUnit
-				mu.Unlock()
-			}
-			var gameUnit GameUnit
-			gameUnit, err = info(idunit, false, gameUnit)
+		idunit := heroArray + i
+		if val, ok := UNITMANAGER.Champions[idunit]; ok {
+			gameUnit, err := infoChampion(idunit, false, val)
 			if err != nil {
 				fmt.Println("Error in updateChampions.info ", err)
 			}
-			gameUnit = addChampInfoFromJson(gameUnit)
-			mu.Lock()
 			UNITMANAGER.Champions[idunit] = gameUnit
-			mu.Unlock()
-		}(i)
+		} else {
+			var gameUnit GameUnit
+			gameUnit, err = infoChampion(idunit, true, gameUnit)
+			if err != nil {
+				fmt.Println("Error in updateChampions.info ", err)
+			}
+			UNITMANAGER.Champions[idunit] = gameUnit
+		}
 	}
-	wg.Wait()
 }
 
 func updateMinions() {
+	var newUnit []GameUnit
+	UNITMANAGER.Minions = newUnit
 	hero, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIMinionClient)
 	if err != nil {
 		fmt.Println("Error in AIMinionClient ", err)
@@ -160,20 +167,12 @@ func updateMinions() {
 	if err != nil {
 		fmt.Println("Error in minionArrayLen ", err)
 	}
-	var wg sync.WaitGroup
 	for i := 0; i < minionArrayLen*4; i += 4 {
 		var gameUnit GameUnit
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			gameUnit, err = info(minionArray+i, true, gameUnit)
-			if err != nil {
-				fmt.Println("Error in updateMinions.info ", err)
-			}
-			mu.Lock()
-			UNITMANAGER.Minions = append(UNITMANAGER.Minions, gameUnit)
-			mu.Unlock()
-		}(i)
+		gameUnit, err = infoMinion(minionArray+i, true, gameUnit)
+		if err != nil {
+			fmt.Println("Error in updateMinions.info ", err)
+		}
+		UNITMANAGER.Minions = append(UNITMANAGER.Minions, gameUnit)
 	}
-	wg.Wait()
 }

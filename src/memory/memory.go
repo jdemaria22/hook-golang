@@ -5,6 +5,7 @@ import (
 	"framework-memory-go/src/size"
 	"framework-memory-go/src/win"
 	"math"
+	"strings"
 	"unicode/utf16"
 	"unsafe"
 )
@@ -14,6 +15,7 @@ const (
 	FILE_VALUE          uint32 = 0x6211
 	METHOD_BUFFERED     uint32 = 0
 	FILE_SPECIAL_ACCESS uint32 = 0
+	BYTE_MAX_VALUE      int    = 127
 )
 
 type KERNEL_READ_REQUEST struct {
@@ -60,6 +62,21 @@ func Float32frombytes(bytes []byte) float32 {
 	bits := binary.LittleEndian.Uint32(bytes)
 	float := math.Float32frombits(bits)
 	return float
+}
+
+func CopyString(bytes []byte) string {
+	var str strings.Builder
+	for _, b := range bytes {
+		c := int(b) & 0xFF
+		if c == 0 {
+			break
+		}
+		if c > BYTE_MAX_VALUE {
+			return ""
+		}
+		str.WriteByte(b)
+	}
+	return str.String()
 }
 
 func Int32frombytes(bytes []byte) int32 {

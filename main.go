@@ -35,6 +35,7 @@ func init() {
 		fmt.Println(err)
 	}
 	HOOK = processHook
+
 	unitmanager.LoadUnitData()
 	unitmanager.SpelltData()
 }
@@ -45,11 +46,12 @@ func main() {
 	ebiten.SetWindowTitle(NAME)
 	ebiten.SetWindowResizable(false)
 	ebiten.SetWindowDecorated(false)
-	ebiten.SetFullscreen(true)
 	ebiten.SetScreenTransparent(true)
 	ebiten.SetWindowFloating(true)
-	ebiten.SetMaxTPS(200)
+	ebiten.SetInitFocused(true)
 	ebiten.SetVsyncEnabled(true)
+	ebiten.SetMaxTPS(60)
+
 	err := ebiten.RunGame(NewGame())
 	if err != nil {
 		log.Fatal(err)
@@ -63,6 +65,10 @@ func NewGame() *Game {
 	return nil
 }
 
+/*
+	Update de la memoria.
+	entre 0 y 2 miliseconds dura la ejecución
+*/
 func (g *Game) Update() error {
 	if count == 0 {
 		var wg sync.WaitGroup
@@ -70,12 +76,18 @@ func (g *Game) Update() error {
 		go func() {
 			count++
 			yogur := win.FindWindow(nil, hook.StringToUTF16PtrElseNil(NAME))
-			r2, err := win.SetWindowLong(yogur, win.GWL_EXSTYLE, win.WS_EX_COMPOSITED|win.WS_EX_LAYERED|win.WS_EX_TRANSPARENT|win.WS_EX_TOOLWINDOW|win.WS_EX_TOPMOST)
+			style := win.GetWindowLong(yogur, win.GWL_EXSTYLE)
+			r2, err := win.SetWindowLong(yogur, win.GWL_EXSTYLE, style&^(win.WS_EX_DLGMODALFRAME|win.WS_EX_WINDOWEDGE|win.WS_EX_CLIENTEDGE|win.WS_EX_STATICEDGE))
 			if err != nil {
 				fmt.Println("error in  setWindowLong: ", err, r2)
 			}
-			module.FirstUpdate()
+			r2, err = win.SetWindowLong(yogur, win.GWL_EXSTYLE, win.WS_EX_OVERLAPPEDWINDOW|win.WS_EX_LAYERED|win.WS_EX_TRANSPARENT|win.WS_EX_TOPMOST)
+			win.SetForegroundWindow(yogur)
+			if err != nil {
+				fmt.Println("error in  setWindowLong: ", err, r2)
+			}
 		}()
+
 	}
 	module.Update()
 	return nil
