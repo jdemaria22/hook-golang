@@ -80,6 +80,7 @@ var (
 	getThreadLocale                    *windows.LazyProc
 	getThreadUILanguage                *windows.LazyProc
 	getVersion                         *windows.LazyProc
+	getTickCount                       *windows.LazyProc
 	globalAlloc                        *windows.LazyProc
 	globalFree                         *windows.LazyProc
 	globalLock                         *windows.LazyProc
@@ -168,6 +169,7 @@ func init() {
 	getThreadLocale = libkernel32.NewProc("GetThreadLocale")
 	getThreadUILanguage = libkernel32.NewProc("GetThreadUILanguage")
 	getVersion = libkernel32.NewProc("GetVersion")
+	getTickCount = libkernel32.NewProc("GetTickCount")
 	globalAlloc = libkernel32.NewProc("GlobalAlloc")
 	globalFree = libkernel32.NewProc("GlobalFree")
 	globalLock = libkernel32.NewProc("GlobalLock")
@@ -357,6 +359,14 @@ func GetThreadUILanguage() LANGID {
 
 func GetVersion() uint32 {
 	ret, _, _ := syscall.Syscall(getVersion.Addr(), 0,
+		0,
+		0,
+		0)
+	return uint32(ret)
+}
+
+func GetTickCount() uint32 {
+	ret, _, _ := syscall.Syscall(getTickCount.Addr(), 0,
 		0,
 		0,
 		0)

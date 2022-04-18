@@ -1,33 +1,163 @@
 package scripts
 
 import (
+	"fmt"
 	"framework-memory-go/src/gui"
+	"framework-memory-go/src/minimap"
+	"framework-memory-go/src/renderer"
+	"framework-memory-go/src/time"
 	"framework-memory-go/src/unitmanager"
 	"image/color"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const (
+	WARD_RANGE = 900
+)
+
+var wardlist []string
+var cloneslist []string
+var trapslist []string
+var meColor color.RGBA = color.RGBA{0, 162, 162, 1}
+var enemyColor color.RGBA = color.RGBA{133, 162, 0, 1}
+var wardColor color.RGBA = color.RGBA{255, 0, 0, 1}
+
+func init() {
+	wardlist = append(wardlist, "perkszombieward")
+	wardlist = append(wardlist, "sightward")
+	wardlist = append(wardlist, "visionward")
+	wardlist = append(wardlist, "yellowtrinket")
+	wardlist = append(wardlist, "yellowtrinketupgrade")
+	wardlist = append(wardlist, "bluetrinket")
+	wardlist = append(wardlist, "jammerdevice")
+
+	cloneslist = append(cloneslist, "shaco")
+	cloneslist = append(cloneslist, "leblanc")
+	cloneslist = append(cloneslist, "monkeyking")
+	cloneslist = append(cloneslist, "neeko")
+	cloneslist = append(cloneslist, "fiddlesticks")
+
+	trapslist = append(trapslist, "caitlyntrap")
+	trapslist = append(trapslist, "jhintrap")
+	trapslist = append(trapslist, "jinxmine")
+	trapslist = append(trapslist, "maokaisproutling")
+	trapslist = append(trapslist, "nidaleespear")
+	trapslist = append(trapslist, "shacobox")
+	trapslist = append(trapslist, "teemomushroom")
+}
+
 func UpdateDrawings(screen *ebiten.Image) {
 	DrawChamps(screen)
-	DrawMinions(screen)
+	DrawUnits(screen)
 }
 
 func DrawChamps(screen *ebiten.Image) {
-
-	purpleClr := color.RGBA{255, 0, 255, 255}
 	for _, element := range unitmanager.UNITMANAGER.Champions {
-		ran := element.AttackRange
-		pos := element.Position
-		gui.DrawCircle(screen, pos, ran+65, 4, purpleClr)
+		if element.Team != unitmanager.LOCALPLAYER.Team {
+			ran := element.AttackRange
+			boundingradius := element.GameplayRadiusJson
+			pos := element.Position
+			if element.IsVisible {
+				gui.DrawCircle(screen, pos, ran+boundingradius, 3, enemyColor)
+				if element.Icon != nil {
+					drawSpell(element, screen)
+				}
+				continue
+			}
+			missing := fmt.Sprintf("%.2f", time.TIME.Second-element.LastVisibleTime)
+			rendererpos := renderer.WorldToScreen(renderer.RENDERER, pos.X, pos.Y, pos.Z)
+			minimapos := minimap.MinimapToScreen(minimap.MINIMAP, pos.X, pos.Y, pos.Z)
+
+			if element.Icon != nil {
+				gui.DrawText(screen, int(rendererpos.X), int(rendererpos.Y), color.White, missing)
+				gui.DrawImage(screen, float64(rendererpos.X), float64(rendererpos.Y), 0.5, 0.5, element.Icon, false)
+				gui.DrawImage(screen, float64(minimapos.X)-10, float64(minimapos.Y)-10, 0.2, 0.2, element.Icon, false)
+			}
+			continue
+		}
+		if element.Name == unitmanager.LOCALPLAYER.Name {
+			ran := element.AttackRange
+			boundingradius := element.GameplayRadiusJson
+			pos := element.Position
+			gui.DrawCircle(screen, pos, ran+boundingradius, 4, meColor)
+			continue
+		}
 	}
 }
 
-func DrawMinions(screen *ebiten.Image) {
-	purpleClr := color.RGBA{255, 0, 255, 255}
+func DrawUnits(screen *ebiten.Image) {
 	for _, element := range unitmanager.UNITMANAGER.Minions {
-		ran := element.AttackRange
-		pos := element.Position
-		gui.DrawCircle(screen, pos, ran+65, 4, purpleClr)
+		if element.Team == unitmanager.LOCALPLAYER.Team {
+			continue
+		}
+
+		if !element.IsAlive {
+			continue
+		}
+
+		if isWard(strings.ToLower(element.Name)) {
+			gui.DrawCircle(screen, element.Position, WARD_RANGE, 2, wardColor)
+			continue
+		}
+
+		if isTrap(strings.ToLower(element.Name)) {
+			gui.DrawCircle(screen, element.Position, element.GameplayRadiusJson, 1, wardColor)
+			continue
+		}
 	}
+}
+
+var iconSize float32 = 28
+var yOffset float32 = iconSize * 2
+
+func drawSpell(gameUnit unitmanager.GameUnit, screen *ebiten.Image) {
+	rendererpos := renderer.WorldToScreen(renderer.RENDERER, gameUnit.Position.X, gameUnit.Position.Y, gameUnit.Position.Z)
+	drawY := rendererpos.Y + yOffset - 150
+	xOffset := -yOffset - 20
+	for _, element := range gameUnit.Spells {
+		levelled := element.Level >= 1
+		remaining := element.ReadyAtSeconds - time.TIME.Second
+		ready := remaining <= 0
+		if element.Icon == nil {
+			continue
+		}
+		if !levelled || !ready {
+			gui.DrawImage(screen, float64(rendererpos.X)+float64(xOffset), float64(drawY), 0.40, 0.40, element.Icon, true)
+		} else {
+			gui.DrawImage(screen, float64(rendererpos.X)+float64(xOffset), float64(drawY), 0.40, 0.40, element.Icon, false)
+		}
+		if levelled && !ready {
+			gui.DrawText(screen, int(rendererpos.X)+int(xOffset), int(drawY), color.White, fmt.Sprintf("%.1f", remaining))
+		}
+		xOffset += iconSize
+	}
+}
+
+func isWard(name string) bool {
+	for _, a := range wardlist {
+		if a == name {
+			return true
+		}
+	}
+	return false
+}
+
+func isClone(name string) bool {
+	for _, a := range cloneslist {
+		if a == name {
+			return true
+		}
+	}
+	return false
+}
+
+func isTrap(name string) bool {
+	for _, a := range trapslist {
+		if a == name {
+			return true
+		}
+	}
+	return false
 }

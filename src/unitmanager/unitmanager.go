@@ -6,6 +6,8 @@ import (
 	"framework-memory-go/src/memory"
 	"framework-memory-go/src/offset"
 	"sync"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type GamePosition struct {
@@ -18,7 +20,7 @@ type GameUnit struct {
 	Address              uint
 	Name                 string
 	LastVisibleTime      float32
-	Team                 int32
+	Team                 int
 	Health               float32
 	MaxHealth            float32
 	BaseAttack           float32
@@ -59,6 +61,9 @@ type GameUnit struct {
 	BasicAtkWindup       float32
 	Tags                 []string
 	UnitType             int
+	Icon                 *ebiten.Image
+	Buffs                []Buff
+	Spells               [6]Spell
 }
 
 type UnitManager struct {
@@ -88,6 +93,7 @@ var (
 	hero         = 0
 	heroArray    = 0
 	heroArrayLen = 0
+	LOCALPLAYER  GameUnit
 )
 
 func Update() error {
@@ -100,6 +106,13 @@ func Update() error {
 	go func() {
 		defer wg.Done()
 		updateMinions()
+	}()
+	wg.Wait()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updateMe()
 	}()
 	wg.Wait()
 	return nil
@@ -185,4 +198,21 @@ func updateMinions() {
 		}
 	}
 	UNITMANAGER.Minions = minions
+}
+
+func updateMe() {
+	address, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.LOCALPLAYER)
+	if err != nil {
+		fmt.Println("Error in Address for LocalPlayer ", err)
+	}
+
+	networkID, err := memory.ReadInt(HOOK.Process, address+offset.OBJNETWORKID)
+	if err != nil {
+		fmt.Println("Error in networkID for LocalPlayer ", err)
+	}
+	for _, element := range UNITMANAGER.Champions {
+		if element.NetworkID == int32(networkID) {
+			LOCALPLAYER = element
+		}
+	}
 }

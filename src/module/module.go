@@ -21,6 +21,7 @@ func Update() {
 			fmt.Println(err)
 		}
 	}()
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -29,6 +30,7 @@ func Update() {
 			fmt.Println(err)
 		}
 	}()
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done()

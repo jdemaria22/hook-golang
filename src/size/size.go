@@ -5,7 +5,7 @@ const (
 	Long       uint = 0x4
 	Char       uint = 0x1
 	Int        uint = 0x4
-	Short      uint = 0x1
+	Short      uint = 0x2
 	Double     uint = 0x8
 	DWORD      uint = 0x4
 	HANDLE     uint = 0x8

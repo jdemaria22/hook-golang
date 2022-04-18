@@ -7,7 +7,7 @@ import (
 )
 
 type Time struct {
-	second float32
+	Second float32
 }
 
 var (
@@ -24,6 +24,6 @@ func Update() error {
 	if err != nil {
 		return err
 	}
-	TIME.second = value
+	TIME.Second = value
 	return nil
 }

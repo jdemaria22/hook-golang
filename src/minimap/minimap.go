@@ -16,9 +16,10 @@ type Minimap struct {
 }
 
 const (
-	Y_ADD_VALUE           int     = 0x4
-	WORLD_SCALE           float32 = 15000
-	MINIMAP_HUD_BUFF_SIZE int     = 0x80
+	Y_ADD_VALUE            int     = 0x4
+	WORLD_SCALE            float32 = 15000
+	MINIMAP_HUD_BUFF_SIZE  int     = 0x80
+	SCREEN_MOVE_FULLSCRENN float32 = 22
 )
 
 var (
@@ -58,7 +59,7 @@ func Update() error {
 	return nil
 }
 
-func MinimapToScreen(x float32, y float32, z float32, minimap Minimap) renderer.ScreenPosition {
+func MinimapToScreen(minimap Minimap, x float32, y float32, z float32) renderer.ScreenPosition {
 	var screenPosition renderer.ScreenPosition
 	var rx = x / WORLD_SCALE
 	var ry = z / WORLD_SCALE
@@ -66,6 +67,6 @@ func MinimapToScreen(x float32, y float32, z float32, minimap Minimap) renderer.
 	rx = minimap.X + rx*minimap.Width
 	ry = minimap.Y + minimap.Height - (ry * minimap.Height)
 	screenPosition.X = rx
-	screenPosition.Y = ry
+	screenPosition.Y = ry - SCREEN_MOVE_FULLSCRENN
 	return screenPosition
 }

@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"framework-memory-go/src/memory"
 	"framework-memory-go/src/offset"
+	"framework-memory-go/src/time"
+	_ "image/png"
 	"strings"
 	"sync"
+
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -31,23 +35,18 @@ func infoMinion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
+		gameUnit.Name = memory.CopyString(val)
 		if deep {
-			val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
-			gameUnit.Name = memory.CopyString(val)
 			gameUnit = addChampInfoFromJson(gameUnit)
-			if contains(gameUnit.Tags, Unit_Monster) {
-				gameUnit.UnitType = UnitTypeMonster
-			}
-			if contains(gameUnit.Tags, Unit_Minion) {
-				gameUnit.UnitType = UnitTypeMinion
-			}
-			if contains(gameUnit.Tags, Unit_Ward) {
-				gameUnit.UnitType = UnitTypeWard
-			}
-			if contains(gameUnit.Tags, Unit_Structure) {
-				gameUnit.UnitType = UnitTypeStructure
-			}
 		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTEAM
+		gameUnit.Team = int(dataBuff[off])
 	}()
 
 	wg.Add(1)
@@ -95,6 +94,20 @@ func infoMinion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		off = offset.OBJVISIBILITY
+		gameUnit.IsVisible = dataBuff[off] != 0
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTARGETABLE
+		gameUnit.IsTargetable = dataBuff[off] != 0
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		off = offset.OBJINDEX
 		gameUnit.ObjectIndex = memory.Int32frombytes(dataBuff[off:])
 	}()
@@ -126,7 +139,16 @@ func infoChampion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 			val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
 			gameUnit.Name = memory.CopyString(val)
 			gameUnit = addChampInfoFromJson(gameUnit)
+			gameUnit = loadIcon(gameUnit)
 		}
+		gameUnit.Spells = UpdateSpell(gameUnit, dataBuff, deep)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTEAM
+		gameUnit.Team = int(dataBuff[off])
 	}()
 
 	wg.Add(1)
@@ -286,14 +308,26 @@ func infoChampion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		off = offset.OBJSPAWNCOUNT
+		gameUnit.SpawnCount = memory.Int32frombytes(dataBuff[off:])
 		gameUnit.IsAlive = gameUnit.SpawnCount%2 == 0
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		off = offset.OBJSPAWNCOUNT
-		gameUnit.SpawnCount = memory.Int32frombytes(dataBuff[off:])
+		off = offset.OBJVISIBILITY
+		gameUnit.IsVisible = dataBuff[off] != 0
+		if gameUnit.IsVisible {
+			gameUnit.LastVisibleTime = time.TIME.Second
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTARGETABLE
+		gameUnit.IsTargetable = dataBuff[off] != 0
 	}()
 
 	wg.Add(1)
@@ -315,6 +349,12 @@ func infoChampion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 		defer wg.Done()
 		off = offset.OBJLVL
 		gameUnit.Level = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		gameUnit.Buffs = UpdateBuff(gameUnit, dataBuff)
 	}()
 
 	wg.Wait()
@@ -343,7 +383,16 @@ func addChampInfoFromJson(gameUnit GameUnit) GameUnit {
 	return gameUnit
 }
 
-func contains(s []string, e string) bool {
+func loadIcon(gameUnit GameUnit) GameUnit {
+	img, _, err := ebitenutil.NewImageFromFile(resourcepath + "/icons_champs/" + strings.ToLower(gameUnit.Name) + "_square.png")
+	if err != nil {
+		fmt.Println("err in load icon champ : ", err)
+	}
+	gameUnit.Icon = img
+	return gameUnit
+}
+
+func containsString(s []string, e string) bool {
 	for _, a := range s {
 		if strings.Contains(a, e) {
 			return true

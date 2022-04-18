@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 )
 
 type UnitData []struct {
@@ -39,9 +40,15 @@ type SpellData []struct {
 
 var UNIT_DATA UnitData
 var SPELL_DATA SpellData
+var SUMMONER_SPELL_DATA SpellData
+var resourcepath string
+
+func init() {
+	resourcepath, _ = filepath.Abs("../hook-golang/src/resources")
+}
 
 func LoadUnitData() {
-	file, err := ioutil.ReadFile("UnitData.json")
+	file, err := ioutil.ReadFile(resourcepath + "/UnitData.json")
 
 	if err != nil {
 		fmt.Println("Error in ReadFile UNIT_DATA ", err)
@@ -56,7 +63,7 @@ func LoadUnitData() {
 }
 
 func SpelltData() {
-	file, err := ioutil.ReadFile("SpellData.json")
+	file, err := ioutil.ReadFile(resourcepath + "/SpellData.json")
 
 	if err != nil {
 		fmt.Println("Error in ReadFile SPELL_DATA ", err)
@@ -68,4 +75,19 @@ func SpelltData() {
 		fmt.Println("Error in UnmarShal SPELL_DATA ", err)
 	}
 	SPELL_DATA = data
+}
+
+func SummonerSpellData() {
+	file, err := ioutil.ReadFile(resourcepath + "/SummonerSpellData.json")
+
+	if err != nil {
+		fmt.Println("Error in ReadFile SUMMONER_SPELL_DATA ", err)
+	}
+	data := SpellData{}
+
+	err = json.Unmarshal([]byte(file), &data)
+	if err != nil {
+		fmt.Println("Error in UnmarShal SUMMONER_SPELL_DATA ", err)
+	}
+	SUMMONER_SPELL_DATA = data
 }

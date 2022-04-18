@@ -33,11 +33,13 @@ func init() {
 	processHook, err := hook.GetHook()
 	if err != nil {
 		fmt.Println(err)
+		log.Panic("not found process")
 	}
 	HOOK = processHook
 
 	unitmanager.LoadUnitData()
 	unitmanager.SpelltData()
+	unitmanager.SummonerSpellData()
 }
 
 func main() {
@@ -65,31 +67,29 @@ func NewGame() *Game {
 	return nil
 }
 
-/*
-	Update de la memoria.
-	entre 0 y 2 miliseconds dura la ejecución
-*/
 func (g *Game) Update() error {
+	var wgg sync.WaitGroup
 	if count == 0 {
 		var wg sync.WaitGroup
 		wg.Add(1)
 		go func() {
 			count++
-			yogur := win.FindWindow(nil, hook.StringToUTF16PtrElseNil(NAME))
-			style := win.GetWindowLong(yogur, win.GWL_EXSTYLE)
-			r2, err := win.SetWindowLong(yogur, win.GWL_EXSTYLE, style&^(win.WS_EX_DLGMODALFRAME|win.WS_EX_WINDOWEDGE|win.WS_EX_CLIENTEDGE|win.WS_EX_STATICEDGE))
+			wnproc := win.FindWindow(nil, hook.StringToUTF16PtrElseNil(NAME))
+			r2, err := win.SetWindowLong(wnproc, win.GWL_EXSTYLE, win.WS_EX_COMPOSITED|win.WS_EX_LAYERED|win.WS_EX_TRANSPARENT|win.WS_EX_TOOLWINDOW|win.WS_EX_TOPMOST)
 			if err != nil {
 				fmt.Println("error in  setWindowLong: ", err, r2)
 			}
-			r2, err = win.SetWindowLong(yogur, win.GWL_EXSTYLE, win.WS_EX_OVERLAPPEDWINDOW|win.WS_EX_LAYERED|win.WS_EX_TRANSPARENT|win.WS_EX_TOPMOST)
-			win.SetForegroundWindow(yogur)
-			if err != nil {
-				fmt.Println("error in  setWindowLong: ", err, r2)
-			}
+			win.SetForegroundWindow(wnproc)
 		}()
 
 	}
 	module.Update()
+	wgg.Add(1)
+	go func() {
+		defer wgg.Done()
+		scripts.UpdateOrbwalker()
+	}()
+
 	return nil
 }
 

@@ -39,7 +39,7 @@ const (
 	OBJTRANSFORMATION    int = 0x3040 //always the same
 	OBJNAME              int = 0x2BAC
 	OBJLVL               int = 0x33A0
-	OBJSIZEMULTIPLIER    int = 0x12D4
+	OBJSIZEMULTIPLIER    int = 0x129C
 	OBJEXPIRY            int = 0x298 //always the same
 	OBJCRIT              int = 0x12E0
 	OBJCRITMULTI         int = 0x12D0
@@ -78,7 +78,7 @@ const (
 	SPELLBOOKACTIVESPELLCAST int = 0x20  //always the same
 	SPELLBOOKSPELLSLOTS      int = 0x488 //always the same
 
-	OBJBUFFMANAGER           int = 0x21B8 //11.18,0x21B8 the ones below are always the same //8D 83 ? ? ? ? 50 8D AB ? ? ? ? // 4 first characters are the offset
+	OBJBUFFMANAGER           int = 0x2180 //11.18,0x21B8 the ones below are always the same //8D 83 ? ? ? ? 50 8D AB ? ? ? ? // 4 first characters are the offset
 	BUFFMANAGERENTRIESARRAY  int = 0x10
 	BUFFMANAGERENDARRAY      int = 0x14
 	BUFFENTRYBUFF            int = 0x8
@@ -189,11 +189,12 @@ const (
 	AITurretClient  int = 0x30EA410
 	AIHeroClient    int = 0x1856650
 
-// 	#define oManagerTemplate_Minions 0x24A4C24
-// #define oManagerTemplate_AttackableUnits 0x24A4BC8
-// #define oManagerTemplate_Turrets 0x30EA410
-// #define oManagerTemplate_Shops 0x30EA414
-// #define oManagerTemplate_Inhibitors 0x30F5D28
-// #define oMangerTemplate_Buildings 0x1855F10
-// #define oManagerTemplate_Heros 0x1856650
+// #define oTurretList 0x30EA410	//8B 35 ? ? ? ? 8B 76 18
+// #define oMinionList 0x24A4C24	//A1 ? ? ? ? 8B 50 04 8D 48 04 89 44 24 3C
+// #define oHeroList 0x1856650	//8B 15 ? ? ? ? 0F 44 C1
+// #define oInhibitorList 0x30F5D28	//A1 ?? ?? ?? ?? 53 55 56 8B 70 04 8B 40 08
+// #define oBuildingList 0x1855F10	//8B 15 ?? ?? ?? ?? 8B 7A 04 8B 42 08 8D 0C 87 3B F9 73 38
+// #define oAttackableUnitList 0x24A4BC8	//A1 ?? ?? ?? ?? 8B 50 04 8B 40 08
+// #define oShopsList 0x30EA414	//8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 75 11 8B 4F 04
+// #define oMissileList 0x24A4BD4 	//8B 35 ?? ?? ?? ?? 8B 46 04 8B 6E 08 8D 0C A8 3B C1 73 15 66 0F 1F 44 00 00 39 38
 )

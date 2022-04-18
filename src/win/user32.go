@@ -1806,6 +1806,7 @@ var (
 	animateWindow               *windows.LazyProc
 	beginDeferWindowPos         *windows.LazyProc
 	beginPaint                  *windows.LazyProc
+	blockInput                  *windows.LazyProc
 	bringWindowToTop            *windows.LazyProc
 	callWindowProc              *windows.LazyProc
 	changeWindowMessageFilterEx *windows.LazyProc
@@ -1852,6 +1853,7 @@ var (
 	getForegroundWindow         *windows.LazyProc
 	getIconInfo                 *windows.LazyProc
 	getKeyState                 *windows.LazyProc
+	getAsyncKeyState            *windows.LazyProc
 	getMenuCheckMarkDimensions  *windows.LazyProc
 	getMenuInfo                 *windows.LazyProc
 	getMenuItemCount            *windows.LazyProc
@@ -1957,6 +1959,7 @@ func init() {
 	animateWindow = libuser32.NewProc("AnimateWindow")
 	beginDeferWindowPos = libuser32.NewProc("BeginDeferWindowPos")
 	beginPaint = libuser32.NewProc("BeginPaint")
+	blockInput = libuser32.NewProc("BlockInput")
 	bringWindowToTop = libuser32.NewProc("BringWindowToTop")
 	callWindowProc = libuser32.NewProc("CallWindowProcW")
 	changeWindowMessageFilterEx = libuser32.NewProc("ChangeWindowMessageFilterEx")
@@ -2003,6 +2006,7 @@ func init() {
 	getForegroundWindow = libuser32.NewProc("GetForegroundWindow")
 	getIconInfo = libuser32.NewProc("GetIconInfo")
 	getKeyState = libuser32.NewProc("GetKeyState")
+	getAsyncKeyState = libuser32.NewProc("GetAsyncKeyState")
 	getMenuCheckMarkDimensions = libuser32.NewProc("GetMenuCheckMarkDimensions")
 	getMenuInfo = libuser32.NewProc("GetMenuInfo")
 	getMenuItemCount = libuser32.NewProc("GetMenuItemCount")
@@ -2643,6 +2647,23 @@ func GetKeyState(nVirtKey int32) int16 {
 		0)
 
 	return int16(ret)
+}
+
+func GetAsyncKeyState(vKey int32) int16 {
+	ret, _, _ := syscall.Syscall(getKeyState.Addr(), 1,
+		uintptr(vKey),
+		0,
+		0)
+
+	return int16(ret)
+}
+
+func BlockInput(b bool) bool {
+	ret, _, _ := syscall.Syscall(blockInput.Addr(), 1,
+		uintptr(BoolToBOOL(b)),
+		0,
+		0)
+	return ret != 0
 }
 
 func GetMenuCheckMarkDimensions() int32 {

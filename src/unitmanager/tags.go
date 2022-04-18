@@ -7,6 +7,7 @@ const (
 	UnitTypeWard      = 4
 	UnitTypeClone     = 5
 	UnitTypeStructure = 6
+	UnitTypeOthers    = 7
 )
 
 const (
