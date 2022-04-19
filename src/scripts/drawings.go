@@ -56,6 +56,9 @@ func UpdateDrawings(screen *ebiten.Image) {
 func DrawChamps(screen *ebiten.Image) {
 	for _, element := range unitmanager.UNITMANAGER.Champions {
 		if element.Team != unitmanager.LOCALPLAYER.Team {
+			if !element.IsAlive {
+				continue
+			}
 			ran := element.AttackRange
 			boundingradius := element.GameplayRadiusJson
 			pos := element.Position

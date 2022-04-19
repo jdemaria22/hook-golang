@@ -6,6 +6,7 @@ import (
 	"framework-memory-go/src/renderer"
 	"framework-memory-go/src/time"
 	"framework-memory-go/src/unitmanager"
+	"framework-memory-go/src/utils"
 	"sync"
 )
 
@@ -48,5 +49,15 @@ func Update() {
 			fmt.Println(err)
 		}
 	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = utils.Update()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	wg.Wait()
 }

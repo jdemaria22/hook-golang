@@ -67,8 +67,10 @@ type GameUnit struct {
 }
 
 type UnitManager struct {
-	Champions map[int]GameUnit
-	Minions   map[int]GameUnit
+	Champions  map[int]GameUnit
+	Minions    map[int]GameUnit
+	Turrets    map[int]GameUnit
+	Inhibitors map[int]GameUnit
 }
 
 const (
@@ -81,6 +83,8 @@ const (
 func init() {
 	UNITMANAGER.Champions = make(map[int]GameUnit)
 	UNITMANAGER.Minions = make(map[int]GameUnit)
+	UNITMANAGER.Turrets = make(map[int]GameUnit)
+	UNITMANAGER.Inhibitors = make(map[int]GameUnit)
 }
 
 var (
@@ -93,6 +97,12 @@ var (
 	hero         = 0
 	heroArray    = 0
 	heroArrayLen = 0
+	turret       = 0
+	turretArray  = 0
+	turArrayLen  = 0
+	inhibitor    = 0
+	inhibiArray  = 0
+	inhArrayLen  = 0
 	LOCALPLAYER  GameUnit
 )
 
@@ -102,13 +112,22 @@ func Update() error {
 		defer wg.Done()
 		updateChampions()
 	}()
+	wg.Wait()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		updateMinions()
 	}()
-	wg.Wait()
-
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updateTurrets()
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		updateInhibitors()
+	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -169,9 +188,6 @@ func updateMinions() {
 	if err != nil {
 		fmt.Println("Error in AIMinionClient ", err)
 	}
-	if err != nil {
-		fmt.Println(err)
-	}
 	minionArray, err := memory.ReadInt(HOOK.Process, hero+0x04)
 	if err != nil {
 		fmt.Println("Error in minionArray ", err)
@@ -198,6 +214,94 @@ func updateMinions() {
 		}
 	}
 	UNITMANAGER.Minions = minions
+}
+
+func updateTurrets() {
+	if turret == 0 {
+		turretvalue, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AITurretClient)
+		if err != nil {
+			fmt.Println("Error in AITurretClient ", err)
+		}
+		turret = turretvalue
+	}
+
+	if turretArray == 0 {
+		turretArrayValue, err := memory.ReadInt(HOOK.Process, turret+0x04)
+		if err != nil {
+			fmt.Println("Error in turretArray ", err)
+		}
+		turretArray = turretArrayValue
+	}
+
+	if turArrayLen == 0 {
+		turretArrayLenValue, err := memory.ReadInt(HOOK.Process, turret+0x08)
+		if err != nil {
+			fmt.Println("Error in turArrayLen ", err)
+		}
+		turArrayLen = turretArrayLenValue
+	}
+	var err error
+	for i := 0; i < turArrayLen*4; i += 4 {
+		idunit := turretArray + i
+		if val, ok := UNITMANAGER.Turrets[idunit]; ok {
+			gameUnit, err := infoTurret(idunit, false, val)
+			if err != nil {
+				fmt.Println("Error in updateTurrets.info ", err)
+			}
+			UNITMANAGER.Turrets[idunit] = gameUnit
+		} else {
+			var gameUnit GameUnit
+			gameUnit, err = infoTurret(idunit, true, gameUnit)
+			if err != nil {
+				fmt.Println("Error in updateTurrets.info ", err)
+			}
+			UNITMANAGER.Turrets[idunit] = gameUnit
+		}
+	}
+}
+
+func updateInhibitors() {
+	if inhibitor == 0 {
+		inhibitorvalue, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIBuildingList)
+		if err != nil {
+			fmt.Println("Error in AIInhibitorList ", err)
+		}
+		inhibitor = inhibitorvalue
+	}
+
+	if inhibiArray == 0 {
+		inhibitorArrayValue, err := memory.ReadInt(HOOK.Process, inhibitor+0x04)
+		if err != nil {
+			fmt.Println("Error in inhibiArray ", err)
+		}
+		inhibiArray = inhibitorArrayValue
+	}
+
+	if inhArrayLen == 0 {
+		inhibitorArrayLenValue, err := memory.ReadInt(HOOK.Process, inhibitor+0x08)
+		if err != nil {
+			fmt.Println("Error in inhArrayLen ", err)
+		}
+		inhArrayLen = inhibitorArrayLenValue
+	}
+	var err error
+	for i := 0; i < inhArrayLen*4; i += 4 {
+		idunit := inhibiArray + i
+		if val, ok := UNITMANAGER.Inhibitors[idunit]; ok {
+			gameUnit, err := infoInhibitor(idunit, false, val)
+			if err != nil {
+				fmt.Println("Error in updateInhibitors.info ", err)
+			}
+			UNITMANAGER.Inhibitors[idunit] = gameUnit
+		} else {
+			var gameUnit GameUnit
+			gameUnit, err = infoInhibitor(idunit, true, gameUnit)
+			if err != nil {
+				fmt.Println("Error in updateInhibitors.info ", err)
+			}
+			UNITMANAGER.Inhibitors[idunit] = gameUnit
+		}
+	}
 }
 
 func updateMe() {

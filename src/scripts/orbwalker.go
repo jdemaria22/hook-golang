@@ -5,6 +5,7 @@ import (
 	"framework-memory-go/src/renderer"
 	t "framework-memory-go/src/time"
 	"framework-memory-go/src/unitmanager"
+	"framework-memory-go/src/utils"
 	"framework-memory-go/src/win"
 	"strings"
 
@@ -14,11 +15,16 @@ import (
 
 const (
 	LETHAL_TEMPO = "ASSETS/Perks/Styles/Precision/LethalTempo/LethalTempo.lua"
+	VK_KEY       = 0x56
 )
 
 var isOwrbwalking = false
+var isLaneClearing = false
 
 func UpdateOrbwalker() {
+	if utils.UTILS.IsChatOpen {
+		return
+	}
 	if input.IsKeyDown(win.VK_SPACE) {
 		target, ok := GestBestTarget()
 		if ok && canAttack() && !isOwrbwalking {
@@ -32,6 +38,27 @@ func UpdateOrbwalker() {
 			time.Sleep(25 * time.Millisecond)
 			input.MoveMouse(int32(oldpost.X), int32(oldpost.Y))
 			isOwrbwalking = false
+			return
+		}
+		if canMove() {
+			input.PressRightClick()
+			lastMoveCommandT = randomNumber() + time.Now().UnixMilli()
+			return
+		}
+	}
+	if input.IsKeyDown(VK_KEY) {
+		target, ok := GestBestTargetForUnits()
+		if ok && canAttack() && !isLaneClearing {
+			isLaneClearing = true
+			oldpost := input.GetCursorPos()
+			targetScreenPos := renderer.WorldToScreen(renderer.RENDERER, target.Position.X, target.Position.Y, target.Position.Z)
+			input.MoveMouse(int32(targetScreenPos.X), int32(targetScreenPos.Y))
+			input.PressRightClick()
+			attackTimer = time.Now().UnixMilli()
+			lastMoveCommandT = time.Now().UnixMilli() + int64(getWindUpTime())
+			time.Sleep(25 * time.Millisecond)
+			input.MoveMouse(int32(oldpost.X), int32(oldpost.Y))
+			isLaneClearing = false
 			return
 		}
 		if canMove() {

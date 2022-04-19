@@ -62,7 +62,7 @@ func DrawImage(screen *ebiten.Image, x float64, y float64, scalex float64, scale
 	op.GeoM.Scale(scalex, scalex)
 	op.GeoM.Translate(x, y)
 	if darkness {
-		op.ColorM.ChangeHSV(128, 128, 30)
+		op.ColorM.Scale(1, 0, 0, 0.5)
 	}
 	screen.DrawImage(image, op)
 }
@@ -75,6 +75,7 @@ func DrawCircle(screen *ebiten.Image, pos unitmanager.GamePosition, radius float
 	var path vector.Path
 	op := &ebiten.DrawTrianglesOptions{FillRule: ebiten.EvenOdd}
 	op.Address = ebiten.AddressUnsafe
+	op.Filter = ebiten.FilterLinear
 
 	path = createCirclePath(pos, radius, path)
 	path = createCirclePath(pos, radius-tickness, path)

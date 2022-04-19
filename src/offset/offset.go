@@ -6,7 +6,7 @@ const (
 	LOCALPLAYER      int = 0x30F5BBC //51 8B 0D ? ? ? ? 85 C9 74 26
 	UNDERMOUSEOBJECT int = 0x30E95F0 //8B 0D ? ? ? ? C7 04 24 ? ? ? ? FF 74 24 58 - 89 0D ? ? ? ? C7 41 ? ? ? ? ? C7 41 ? ? ? ? ? C7 01 ? ? ? ?
 	ZOOMCLASS        int = 0x310D610 //A3 ? ? ? ? 83 FA 10 72 32
-	CHAT             int = 0x30F5C94 //0x31023CCL //8B 0D ? ? ? ? 8A D8 85
+	CHAT             int = 0x30F5C94 //8B 0D ? ? ? ? 8A D8 85
 	VIEWPROJMATRICES int = 0x31203A0 //B9 ? ? ? ? 0F 10 80
 	RENDERER         int = 0x31232A0 //8B 0D ? ? ? ? 50 E8 ? ? ? ? 5E 8B
 	MINIMAPOBJECT    int = 0x30ECCCC //8B 1D ? ? ? ? 85 DB 74 19
@@ -73,7 +73,7 @@ const (
 
 	MAXZOOM int = 0x20 //always the same
 
-	CHATISOPEN int = 0x73C //C7 86 ? ? ? ? ? ? ? ? E8 ? ? ? ? 83 C4 04 85 C0 75 30 F6 86 ? ? ? ? ? 75 1B 38 86 ? ? ? ?
+	CHATISOPEN int = 0x754 //C7 86 ? ? ? ? ? ? ? ? E8 ? ? ? ? 83 C4 04 85 C0 75 30 F6 86 ? ? ? ? ? 75 1B 38 86 ? ? ? ?
 
 	SPELLBOOKACTIVESPELLCAST int = 0x20  //always the same
 	SPELLBOOKSPELLSLOTS      int = 0x488 //always the same
@@ -184,10 +184,11 @@ const (
 	MISSILEENDPOS      int = 0x300     //0x9CL //12.1
 	MISSILESPEED       int = 0x68      //12.1
 
-	AIMissileClient int = 0x0310B38C
+	AIMissileClient int = 0x24A4BD4
 	AIMinionClient  int = 0x24A4C24
 	AITurretClient  int = 0x30EA410
 	AIHeroClient    int = 0x1856650
+	AIBuildingList  int = 0x1855F10
 
 // #define oTurretList 0x30EA410	//8B 35 ? ? ? ? 8B 76 18
 // #define oMinionList 0x24A4C24	//A1 ? ? ? ? 8B 50 04 8D 48 04 89 44 24 3C

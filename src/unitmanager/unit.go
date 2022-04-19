@@ -73,6 +73,13 @@ func infoMinion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		off = offset.OBJHEALTH
+		gameUnit.Health = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		off = offset.OBJARMOR
 		gameUnit.Armor = memory.Float32frombytes(dataBuff[off:])
 	}()
@@ -112,6 +119,177 @@ func infoMinion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 		gameUnit.ObjectIndex = memory.Int32frombytes(dataBuff[off:])
 	}()
 
+	wg.Wait()
+
+	return gameUnit, nil
+}
+
+func infoTurret(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
+	data, err := memory.ReadInt(HOOK.Process, int(address))
+	if err != nil {
+		fmt.Println("error in infoTurret. data: ", err)
+		return gameUnit, err
+	}
+
+	dataBuff, err := memory.Read(HOOK.Process, data, INFO_SIZE_MINIONS)
+	if err != nil {
+		fmt.Println("error in info. infoTurret dataBuff: ", err)
+		return gameUnit, err
+	}
+	var wg sync.WaitGroup
+	var off int
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
+		gameUnit.Name = memory.CopyString(val)
+		if deep {
+			gameUnit = addChampInfoFromJson(gameUnit)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTEAM
+		gameUnit.Team = int(dataBuff[off])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJPOS
+		gameUnit.Position.X = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJPOS + 0x4
+		gameUnit.Position.Y = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJPOS + 0x8
+		gameUnit.Position.Z = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJNETWORKID
+		gameUnit.NetworkID = memory.Int32frombytes(dataBuff[off:])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJSPAWNCOUNT
+		gameUnit.SpawnCount = memory.Int32frombytes(dataBuff[off:])
+		gameUnit.IsAlive = gameUnit.SpawnCount%2 == 0
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJVISIBILITY
+		gameUnit.IsVisible = dataBuff[off] != 0
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTARGETABLE
+		gameUnit.IsTargetable = dataBuff[off] != 0
+	}()
+
+	wg.Wait()
+
+	return gameUnit, nil
+}
+
+func infoInhibitor(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
+	data, err := memory.ReadInt(HOOK.Process, int(address))
+	if err != nil {
+		fmt.Println("error in infoInhibitor. data: ", err)
+		return gameUnit, err
+	}
+
+	dataBuff, err := memory.Read(HOOK.Process, data, INFO_SIZE_MINIONS)
+	if err != nil {
+		fmt.Println("error in info. infoInhibitor dataBuff: ", err)
+		return gameUnit, err
+	}
+	var wg sync.WaitGroup
+	var off int
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
+		gameUnit.Name = memory.CopyString(val)
+		if deep {
+			gameUnit = addChampInfoFromJson(gameUnit)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTEAM
+		gameUnit.Team = int(dataBuff[off])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJPOS
+		gameUnit.Position.X = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJPOS + 0x4
+		gameUnit.Position.Y = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJPOS + 0x8
+		gameUnit.Position.Z = memory.Float32frombytes(dataBuff[off:])
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJNETWORKID
+		gameUnit.NetworkID = memory.Int32frombytes(dataBuff[off:])
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJSPAWNCOUNT
+		gameUnit.SpawnCount = memory.Int32frombytes(dataBuff[off:])
+		gameUnit.IsAlive = gameUnit.SpawnCount%2 == 0
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJVISIBILITY
+		gameUnit.IsVisible = dataBuff[off] != 0
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		off = offset.OBJTARGETABLE
+		gameUnit.IsTargetable = dataBuff[off] != 0
+	}()
 	wg.Wait()
 
 	return gameUnit, nil

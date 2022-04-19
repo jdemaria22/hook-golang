@@ -99,5 +99,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return screenWidth, screenHeight
+	// The unit of outsideWidth/Height is device-independent pixels.
+	// By multiplying them by the device scale factor, we can get a hi-DPI screen size.
+	s := ebiten.DeviceScaleFactor()
+	return int(float64(outsideWidth) * s), int(float64(outsideHeight) * s)
+	//return screenWidth, screenHeight
 }
