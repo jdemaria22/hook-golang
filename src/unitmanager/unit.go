@@ -37,6 +37,17 @@ func infoMinion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 		defer wg.Done()
 		val, _ := memory.Read(HOOK.Process, int(memory.Int32frombytes(dataBuff[offset.OBJNAME:+offset.OBJNAME+4])), 50)
 		gameUnit.Name = memory.CopyString(val)
+		if containsString(Minionlist, gameUnit.Name) {
+			gameUnit.UnitType = UnitTypeMinion
+		}
+		if containsString(Monsterlist, gameUnit.Name) {
+			gameUnit.UnitType = UnitTypeMonster
+		}
+		if containsString(Wardlist, gameUnit.Name) {
+			gameUnit.UnitType = UnitTypeWard
+		} else {
+			gameUnit.UnitType = UnitTypeOthers
+		}
 		if deep {
 			gameUnit = addChampInfoFromJson(gameUnit)
 		}
@@ -572,7 +583,7 @@ func loadIcon(gameUnit GameUnit) GameUnit {
 
 func containsString(s []string, e string) bool {
 	for _, a := range s {
-		if strings.Contains(a, e) {
+		if strings.ToLower(e) == a {
 			return true
 		}
 	}

@@ -94,7 +94,13 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	scripts.UpdateDrawings(screen)
+	var wgg sync.WaitGroup
+	wgg.Add(1)
+	go func() {
+		defer wgg.Done()
+		scripts.UpdateDrawings(screen)
+	}()
+	wgg.Wait()
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
 }
 

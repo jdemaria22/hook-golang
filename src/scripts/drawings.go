@@ -61,7 +61,8 @@ func UpdateDrawings(screen *ebiten.Image) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		DrawUnits(screen)
+		// DrawUnits(screen)
+		DrawWards(screen)
 	}()
 	wg.Wait()
 }
@@ -103,7 +104,7 @@ func DrawChamps(screen *ebiten.Image) {
 }
 
 func DrawUnits(screen *ebiten.Image) {
-	for _, element := range unitmanager.UNITMANAGER.Minions {
+	for _, element := range unitmanager.UNITMANAGER.AllUnits {
 		if element.Team == unitmanager.LOCALPLAYER.Team {
 			continue
 		}
@@ -131,6 +132,24 @@ func DrawUnits(screen *ebiten.Image) {
 			gui.DrawText(screen, int(rendererpos.X), int(rendererpos.Y), color.White, element.Name)
 			gui.DrawCircle(screen, element.Position, element.GameplayRadiusJson, 1, wardColorRed)
 			continue
+		}
+	}
+}
+
+func DrawWards(screen *ebiten.Image) {
+	for _, element := range unitmanager.UNITMANAGER.Wards {
+		if element.Team == unitmanager.LOCALPLAYER.Team {
+			continue
+		}
+		if !element.IsAlive {
+			continue
+		}
+		if element.Name == "JammerDevice" {
+			gui.DrawCircle(screen, element.Position, WARD_RANGE, 2, wardColorRed)
+			gui.DrawCircleInMinimap(screen, element.Position, WARD_RANGE, 2, wardColorRed)
+		} else {
+			gui.DrawCircle(screen, element.Position, WARD_RANGE, 2, wardColorYellow)
+			gui.DrawCircleInMinimap(screen, element.Position, WARD_RANGE, 2, wardColorRed)
 		}
 	}
 }

@@ -1,18 +1,11 @@
-package scripts
-
-import (
-	"framework-memory-go/src/unitmanager"
-	"math"
-	"strings"
-)
-
-const (
-	HIGH_VALUE = 1000000
-)
+package unitmanager
 
 var Minionlist []string
 var Towerlist []string
 var Monsterlist []string
+var Wardlist []string
+var Cloneslist []string
+var Trapslist []string
 
 func init() {
 	Minionlist = append(Minionlist, "apheliosturret")
@@ -119,151 +112,26 @@ func init() {
 	Monsterlist = append(Monsterlist, "sru_redmini")
 	Monsterlist = append(Monsterlist, "sru_riftherald")
 	Monsterlist = append(Monsterlist, "sru_riftherald_mercenary")
-}
 
-func isMinion(name string) bool {
-	for _, a := range Minionlist {
-		if a == strings.ToLower(name) {
-			return true
-		}
-	}
-	return false
-}
+	Wardlist = append(Wardlist, "perkszombieward")
+	Wardlist = append(Wardlist, "sightward")
+	Wardlist = append(Wardlist, "visionward")
+	Wardlist = append(Wardlist, "yellowtrinket")
+	Wardlist = append(Wardlist, "yellowtrinketupgrade")
+	Wardlist = append(Wardlist, "bluetrinket")
+	Wardlist = append(Wardlist, "jammerdevice")
 
-func isMonster(name string) bool {
-	for _, a := range Monsterlist {
-		if a == strings.ToLower(name) {
-			return true
-		}
-	}
-	return false
-}
+	Cloneslist = append(Cloneslist, "shaco")
+	Cloneslist = append(Cloneslist, "leblanc")
+	Cloneslist = append(Cloneslist, "monkeyking")
+	Cloneslist = append(Cloneslist, "neeko")
+	Cloneslist = append(Cloneslist, "fiddlesticks")
 
-func isTower(name string) bool {
-	for _, a := range Towerlist {
-		if a == strings.ToLower(name) {
-			return true
-		}
-	}
-	return false
-}
-
-func GestBestTarget() (unitmanager.GameUnit, bool) {
-	var lasthealth float32 = HIGH_VALUE
-	gameunit := unitmanager.GameUnit{}
-	for _, element := range unitmanager.UNITMANAGER.Champions {
-		if element.Team == unitmanager.LOCALPLAYER.Team {
-			continue
-		}
-		if !element.IsAlive {
-			continue
-		}
-		if !element.IsVisible {
-			continue
-		}
-		if !element.IsTargetable {
-			continue
-		}
-		if !inRange(element) {
-			continue
-		}
-		if lasthealth >= element.Health {
-			lasthealth = element.Health
-			gameunit = element
-		}
-	}
-	if gameunit.Team == 0 {
-		return gameunit, false
-	}
-	return gameunit, true
-}
-
-func GestBestTargetForUnits() (unitmanager.GameUnit, bool) {
-	var lasthealth float32 = HIGH_VALUE
-	gameunit := unitmanager.GameUnit{}
-	for _, element := range unitmanager.UNITMANAGER.Inhibitors {
-		if element.Team == unitmanager.LOCALPLAYER.Team {
-			continue
-		}
-		if !element.IsAlive {
-			continue
-		}
-		if !element.IsVisible {
-			continue
-		}
-		if !element.IsTargetable {
-			continue
-		}
-
-		if !inRange(element) {
-			continue
-		}
-		gameunit = element
-		break
-	}
-	if gameunit.Team != 0 {
-		return gameunit, true
-	}
-
-	for _, element := range unitmanager.UNITMANAGER.Turrets {
-		if element.Team == unitmanager.LOCALPLAYER.Team {
-			continue
-		}
-		if !element.IsAlive {
-			continue
-		}
-		if !element.IsVisible {
-			continue
-		}
-		if !element.IsTargetable {
-			continue
-		}
-
-		if !inRange(element) {
-			continue
-		}
-		gameunit = element
-		break
-	}
-	if gameunit.Team != 0 {
-		return gameunit, true
-	}
-	for _, element := range unitmanager.UNITMANAGER.AllUnits {
-		if element.Team == unitmanager.LOCALPLAYER.Team {
-			continue
-		}
-		if !element.IsAlive {
-			continue
-		}
-		if !element.IsVisible {
-			continue
-		}
-		if !element.IsTargetable {
-			continue
-		}
-
-		if !inRange(element) {
-			continue
-		}
-		if lasthealth >= element.Health {
-			lasthealth = element.Health
-			gameunit = element
-		}
-	}
-
-	if gameunit.Team != 0 {
-		return gameunit, true
-	}
-	return gameunit, false
-}
-
-func inRange(gameunit unitmanager.GameUnit) bool {
-	entityradius := gameunit.GameplayRadiusJson * gameunit.SizeMultiplier
-	championradius := gameunit.GameplayRadiusJson * unitmanager.LOCALPLAYER.SizeMultiplier
-	return distanceBetweenTargets3D(unitmanager.LOCALPLAYER.Position, gameunit.Position)-float64(entityradius) < float64(unitmanager.LOCALPLAYER.AttackRange)+float64(championradius)
-}
-
-func distanceBetweenTargets3D(position1 unitmanager.GamePosition, position2 unitmanager.GamePosition) float64 {
-	pow := math.Pow(float64(position1.X)-float64(position2.X), 2) + math.Pow(float64(position1.Y)-float64(position2.Y), 2) + math.Pow(float64(position1.Z)-float64(position2.Z), 2)
-	return math.Abs(math.Pow(pow, 0.5))
+	Trapslist = append(Trapslist, "caitlyntrap")
+	Trapslist = append(Trapslist, "jhintrap")
+	Trapslist = append(Trapslist, "jinxmine")
+	Trapslist = append(Trapslist, "maokaisproutling")
+	Trapslist = append(Trapslist, "nidaleespear")
+	Trapslist = append(Trapslist, "shacobox")
+	Trapslist = append(Trapslist, "teemomushroom")
 }
