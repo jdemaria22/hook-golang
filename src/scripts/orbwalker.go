@@ -72,8 +72,8 @@ func UpdateOrbwalker() {
 var attackTimer int64 = 0
 var lastMoveCommandT int64 = 0
 var ping int64 = 45 / 2
-var min int64 = 50
-var max int64 = 100
+var min int64 = 150
+var max int64 = 300
 
 func canAttack() bool {
 	return attackTimer+int64(getAttackDelay())+ping < time.Now().UnixMilli()

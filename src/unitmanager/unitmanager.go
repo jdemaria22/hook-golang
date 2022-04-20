@@ -123,11 +123,11 @@ func Update() error {
 		defer wg.Done()
 		updateTurrets()
 	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		updateInhibitors()
-	}()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	updateInhibitors()
+	// }()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
