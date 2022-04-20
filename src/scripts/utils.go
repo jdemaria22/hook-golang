@@ -181,29 +181,29 @@ func GestBestTarget() (unitmanager.GameUnit, bool) {
 func GestBestTargetForUnits() (unitmanager.GameUnit, bool) {
 	var lasthealth float32 = HIGH_VALUE
 	gameunit := unitmanager.GameUnit{}
-	for _, element := range unitmanager.UNITMANAGER.Inhibitors {
-		if element.Team == unitmanager.LOCALPLAYER.Team {
-			continue
-		}
-		if !element.IsAlive {
-			continue
-		}
-		if !element.IsVisible {
-			continue
-		}
-		if !element.IsTargetable {
-			continue
-		}
+	// for _, element := range unitmanager.UNITMANAGER.Inhibitors {
+	// 	if element.Team == unitmanager.LOCALPLAYER.Team {
+	// 		continue
+	// 	}
+	// 	if !element.IsAlive {
+	// 		continue
+	// 	}
+	// 	if !element.IsVisible {
+	// 		continue
+	// 	}
+	// 	if !element.IsTargetable {
+	// 		continue
+	// 	}
 
-		if !inRange(element) {
-			continue
-		}
-		gameunit = element
-		break
-	}
-	if gameunit.Team != 0 {
-		return gameunit, true
-	}
+	// 	if !inRange(element) {
+	// 		continue
+	// 	}
+	// 	gameunit = element
+	// 	break
+	// }
+	// if gameunit.Team != 0 {
+	// 	return gameunit, true
+	// }
 
 	for _, element := range unitmanager.UNITMANAGER.Turrets {
 		if element.Team == unitmanager.LOCALPLAYER.Team {

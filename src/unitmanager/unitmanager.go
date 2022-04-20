@@ -67,16 +67,10 @@ type GameUnit struct {
 }
 
 type UnitManager struct {
-	Champions    map[int]GameUnit
-	AllUnits     map[int]GameUnit
-	Minions      map[int]GameUnit
-	EnemyMinions map[int]GameUnit
-	Monster      map[int]GameUnit
-	Wards        map[int]GameUnit
-	Clones       map[int]GameUnit
-	Traps        map[int]GameUnit
-	Turrets      map[int]GameUnit
-	Inhibitors   map[int]GameUnit
+	Champions  map[int]GameUnit
+	AllUnits   map[int]GameUnit
+	Turrets    map[int]GameUnit
+	Inhibitors map[int]GameUnit
 }
 
 const (
@@ -89,9 +83,6 @@ const (
 func init() {
 	UNITMANAGER.Champions = make(map[int]GameUnit)
 	UNITMANAGER.AllUnits = make(map[int]GameUnit)
-	UNITMANAGER.Monster = make(map[int]GameUnit)
-	UNITMANAGER.Wards = make(map[int]GameUnit)
-	UNITMANAGER.Wards = make(map[int]GameUnit)
 	UNITMANAGER.Turrets = make(map[int]GameUnit)
 	UNITMANAGER.Inhibitors = make(map[int]GameUnit)
 }
@@ -192,11 +183,6 @@ func updateChampions() {
 
 func updateAllUnits() {
 	allUnits := make(map[int]GameUnit)
-	wards := make(map[int]GameUnit)
-	minions := make(map[int]GameUnit)
-	minionsEnemy := make(map[int]GameUnit)
-	monsters := make(map[int]GameUnit)
-	clones := make(map[int]GameUnit)
 
 	hero, err := memory.ReadInt(HOOK.Process, HOOK.ModuleBaseAddr+offset.AIMinionClient)
 	if err != nil {
@@ -218,18 +204,6 @@ func updateAllUnits() {
 				fmt.Println("Error in updateChampions.info ", err)
 			}
 			allUnits[idunit] = gameUnit
-			if gameUnit.UnitType == UnitTypeMinion {
-				minions[idunit] = gameUnit
-			}
-			if gameUnit.UnitType == UnitTypeWard {
-				wards[idunit] = gameUnit
-			}
-			if gameUnit.UnitType == UnitTypeClone {
-				clones[idunit] = gameUnit
-			}
-			if gameUnit.UnitType == UnitTypeMonster {
-				monsters[idunit] = gameUnit
-			}
 		} else {
 			var gameUnit GameUnit
 			gameUnit, err = infoMinion(idunit, true, gameUnit)
@@ -237,29 +211,9 @@ func updateAllUnits() {
 				fmt.Println("Error in updateAllUnits.info ", err)
 			}
 			allUnits[idunit] = gameUnit
-			if gameUnit.UnitType == UnitTypeMinion {
-				if gameUnit.Team != LOCALPLAYER.Team {
-					minionsEnemy[idunit] = gameUnit
-				}
-				minions[idunit] = gameUnit
-			}
-			if gameUnit.UnitType == UnitTypeWard {
-				wards[idunit] = gameUnit
-			}
-			if gameUnit.UnitType == UnitTypeClone {
-				clones[idunit] = gameUnit
-			}
-			if gameUnit.UnitType == UnitTypeMonster {
-				monsters[idunit] = gameUnit
-			}
 		}
 	}
 	UNITMANAGER.AllUnits = allUnits
-	UNITMANAGER.Minions = minions
-	UNITMANAGER.EnemyMinions = minionsEnemy
-	UNITMANAGER.Monster = monsters
-	UNITMANAGER.Wards = wards
-	UNITMANAGER.Clones = clones
 }
 
 func updateTurrets() {

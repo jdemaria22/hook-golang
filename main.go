@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -67,6 +68,8 @@ func NewGame() *Game {
 	return nil
 }
 
+var tick = time.Now().UnixMilli()
+
 func (g *Game) Update() error {
 	var wgg sync.WaitGroup
 	if count == 0 {
@@ -83,13 +86,15 @@ func (g *Game) Update() error {
 		}()
 
 	}
-	module.Update()
+	if (time.Now().UnixMilli() - tick) > 10 {
+		tick = time.Now().UnixMilli()
+		module.Update()
+	}
 	wgg.Add(1)
 	go func() {
 		defer wgg.Done()
 		scripts.UpdateOrbwalker()
 	}()
-
 	return nil
 }
 
