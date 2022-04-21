@@ -16,6 +16,7 @@ type AiManager struct {
 	ClickRightPosition GamePosition
 	CastPosition       GamePosition
 	Velocity           GamePosition
+	NavigationPath     []GamePosition
 	MoveSpeed          float32
 	DashSpeed          float32
 }
@@ -75,6 +76,35 @@ func UpdateAimanager(data []byte) AiManager {
 	aiManager.MoveSpeed = memory.Float32frombytes(baseBuff[offset.AIMANAGERMOVESPEED:])
 
 	aiManager.DashSpeed = memory.Float32frombytes(baseBuff[offset.AIMANAGERDASHSPEED:])
-
+	aiManager.NavigationPath = navigationPath(baseBuff)
 	return aiManager
+}
+
+var AiManagerPointerPathStart = 0x1E4
+var AiManagerPointerPathEnd = 0x1E8
+
+func navigationPath(data []byte) []GamePosition {
+	aiManagerPointerPathStart := memory.Int32frombytes(data[AiManagerPointerPathStart:])
+	if aiManagerPointerPathStart == 0 {
+		return []GamePosition{}
+	}
+	aiManagerPointerPathEnd := memory.Int32frombytes(data[AiManagerPointerPathEnd:])
+
+	numsegments := aiManagerPointerPathEnd - aiManagerPointerPathStart
+	dataBuff, err := memory.Read(HOOK.Process, int(aiManagerPointerPathStart), int(numsegments))
+	if err != nil {
+		fmt.Println(err)
+	}
+	// fmt.Println(dataBuff)
+	// navigationPath := make([]GamePosition, numsegments/12)
+	navigationPath := []GamePosition{}
+	gamePosition := GamePosition{}
+	for i := 0; i < int(numsegments); i += 0xC {
+		gamePosition.X = memory.Float32frombytes(dataBuff[i:])
+		gamePosition.Y = memory.Float32frombytes(dataBuff[i+0x4:])
+		gamePosition.Z = memory.Float32frombytes(dataBuff[i+0x8:])
+		navigationPath = append(navigationPath, gamePosition)
+	}
+
+	return navigationPath
 }

@@ -96,6 +96,13 @@ func DrawChamps(screen *ebiten.Image) {
 			boundingradius := element.GameplayRadiusJson
 			pos := element.Position
 			gui.DrawCircle(screen, pos, ran+boundingradius, 4, meColor)
+			//
+			for a, element := range unitmanager.LOCALPLAYER.AiManager.NavigationPath {
+				if a != 0 {
+					gui.DrawRectLine(unitmanager.LOCALPLAYER.AiManager.NavigationPath[a-1], element, screen, wardColorRed)
+				}
+				gui.DrawCircleFilled(screen, element, 30, wardColorRed)
+			}
 			continue
 		}
 	}

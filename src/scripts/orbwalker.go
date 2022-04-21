@@ -1,6 +1,7 @@
 package scripts
 
 import (
+	"fmt"
 	"framework-memory-go/src/input"
 	"framework-memory-go/src/renderer"
 	t "framework-memory-go/src/time"
@@ -26,6 +27,7 @@ func UpdateOrbwalker() {
 		return
 	}
 	if input.IsKeyDown(win.VK_SPACE) {
+		fmt.Println(unitmanager.LOCALPLAYER.AiManager.NavigationPath)
 		target, ok := GestBestTarget()
 		if ok && canAttack() && !isOwrbwalking {
 			isOwrbwalking = true

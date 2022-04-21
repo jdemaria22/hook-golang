@@ -4,6 +4,7 @@ import (
 	"framework-memory-go/src/minimap"
 	"framework-memory-go/src/renderer"
 	"framework-memory-go/src/unitmanager"
+	"image"
 	"image/color"
 	"log"
 	"math"
@@ -162,6 +163,39 @@ func createCirclePath(pos unitmanager.GamePosition, radius float32, path vector.
 	}
 	path.LineTo(firsPos.X, firsPos.Y)
 	return path
+}
+
+func DrawRectLine(pos unitmanager.GamePosition, pos2 unitmanager.GamePosition, screen *ebiten.Image, clr color.RGBA) {
+	var path vector.Path
+	op := &ebiten.DrawTrianglesOptions{}
+	op.Address = ebiten.AddressUnsafe
+	firsPos := renderer.WorldToScreen(renderer.RENDERER,
+		pos.X,
+		pos.Y,
+		pos.Z)
+
+	path.MoveTo(firsPos.X, firsPos.Y)
+	secPos := renderer.WorldToScreen(renderer.RENDERER,
+		pos.X,
+		pos.Y,
+		pos.Z)
+	path.LineTo(secPos.X, secPos.Y)
+
+	vertices, indices := path.AppendVerticesAndIndicesForFilling(nil, nil)
+	redScaled := float32(clr.R) / 255
+	greenScaled := float32(clr.G) / 255
+	blueScaled := float32(clr.B) / 255
+	alphaScaled := float32(clr.A) / 255
+
+	for i := range vertices {
+		v := &vertices[i]
+		v.ColorR = redScaled
+		v.ColorG = greenScaled
+		v.ColorB = blueScaled
+		v.ColorA = alphaScaled
+	}
+	screen.DrawTriangles(vertices, indices, emptyImage.SubImage(image.Rect(1, 1, 2, 2)).(*ebiten.Image), op)
+	// screen.DrawTrianglesShader(vertices, indices, simpleShader, &ebiten.DrawTrianglesShaderOptions{FillRule: ebiten.EvenOdd})
 }
 
 func createCirclePathInMinimap(pos unitmanager.GamePosition, radius float32, path vector.Path) vector.Path {
