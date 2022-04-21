@@ -150,7 +150,7 @@ const (
 	MINIMAPHUDSIZE   int = 0x4C
 
 	// not in use, no need of updating
-	AIMANAGER                   int = 0x2C98
+	AIMANAGER                   int = 0x2C84
 	AIMANAGERSTARTPATH          int = 0x1CC // Funciona
 	AIMANAGERENDPATH            int = 0x1D8 // Funciona
 	AIMANAGERCLICKRIGHTPOSITION int = 0x10

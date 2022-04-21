@@ -57,7 +57,6 @@ func UpdateDrawings(screen *ebiten.Image) {
 		defer wg.Done()
 		DrawChamps(screen)
 	}()
-
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -116,12 +115,12 @@ func DrawUnits(screen *ebiten.Image) {
 			rendererpos := renderer.WorldToScreen(renderer.RENDERER, element.Position.X, element.Position.Y, element.Position.Z)
 			if element.Name == "JammerDevice" {
 				gui.DrawText(screen, int(rendererpos.X), int(rendererpos.Y), color.White, element.Name)
-				gui.DrawCircle(screen, element.Position, WARD_RANGE, 2, wardColorRed)
-				gui.DrawCircleInMinimap(screen, element.Position, WARD_RANGE, 2, wardColorRed)
+				gui.DrawCircle(screen, element.Position, WARD_RANGE, 1.3, wardColorRed)
+				gui.DrawCircleInMinimap(screen, element.Position, WARD_RANGE, 70, wardColorRed)
 			} else {
 				gui.DrawText(screen, int(rendererpos.X), int(rendererpos.Y), color.White, element.Name)
-				gui.DrawCircle(screen, element.Position, WARD_RANGE, 2, wardColorYellow)
-				gui.DrawCircleInMinimap(screen, element.Position, WARD_RANGE, 2, wardColorRed)
+				gui.DrawCircle(screen, element.Position, WARD_RANGE, 1.3, wardColorYellow)
+				gui.DrawCircleInMinimap(screen, element.Position, WARD_RANGE, 70, wardColorYellow)
 			}
 			continue
 		}

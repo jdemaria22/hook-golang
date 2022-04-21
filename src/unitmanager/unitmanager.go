@@ -61,6 +61,7 @@ type GameUnit struct {
 	BasicAtkWindup       float32
 	Tags                 []string
 	UnitType             int
+	AiManager            AiManager
 	Icon                 *ebiten.Image
 	Buffs                []Buff
 	Spells               [6]Spell
@@ -128,11 +129,6 @@ func Update() error {
 		defer wg.Done()
 		updateTurrets()
 	}()
-	// wg.Add(1)
-	// go func() {
-	// 	defer wg.Done()
-	// 	updateInhibitors()
-	// }()
 	wg.Wait()
 	return nil
 }
@@ -236,7 +232,7 @@ func updateTurrets() {
 	if turArrayLen == 0 {
 		turretArrayLenValue, err := memory.ReadInt(HOOK.Process, turret+0x08)
 		if err != nil {
-			fmt.Println("Error in turArrayLen ", err)
+			fmt.Println("Error in turretArrayLenValue ", err)
 		}
 		turArrayLen = turretArrayLenValue
 	}

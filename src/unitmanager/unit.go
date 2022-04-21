@@ -535,6 +535,11 @@ func infoChampion(address int, deep bool, gameUnit GameUnit) (GameUnit, error) {
 		gameUnit.Buffs = UpdateBuff(gameUnit, dataBuff)
 	}()
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		gameUnit.AiManager = UpdateAimanager(dataBuff)
+	}()
 	wg.Wait()
 
 	return gameUnit, nil
