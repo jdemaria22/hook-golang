@@ -15,41 +15,17 @@ import (
 )
 
 const (
-	WARD_RANGE = 900
+	WARD_RANGE     = 900
+	LAST_HIT_RANGE = 50
 )
 
-var wardlist []string
-var cloneslist []string
-var trapslist []string
 var meColor color.RGBA = color.RGBA{0, 162, 162, 1}
 var enemyColor color.RGBA = color.RGBA{133, 162, 0, 1}
 var wardColorRed color.RGBA = color.RGBA{255, 0, 0, 1}
 var wardColorYellow color.RGBA = color.RGBA{231, 249, 0, 1}
+var minionColorLastHit color.RGBA = color.RGBA{25, 0, 255, 1}
+
 var wg sync.WaitGroup
-
-func init() {
-	wardlist = append(wardlist, "perkszombieward")
-	wardlist = append(wardlist, "sightward")
-	wardlist = append(wardlist, "visionward")
-	wardlist = append(wardlist, "yellowtrinket")
-	wardlist = append(wardlist, "yellowtrinketupgrade")
-	wardlist = append(wardlist, "bluetrinket")
-	wardlist = append(wardlist, "jammerdevice")
-
-	cloneslist = append(cloneslist, "shaco")
-	cloneslist = append(cloneslist, "leblanc")
-	cloneslist = append(cloneslist, "monkeyking")
-	cloneslist = append(cloneslist, "neeko")
-	cloneslist = append(cloneslist, "fiddlesticks")
-
-	trapslist = append(trapslist, "caitlyntrap")
-	trapslist = append(trapslist, "jhintrap")
-	trapslist = append(trapslist, "jinxmine")
-	trapslist = append(trapslist, "maokaisproutling")
-	trapslist = append(trapslist, "nidaleespear")
-	trapslist = append(trapslist, "shacobox")
-	trapslist = append(trapslist, "teemomushroom")
-}
 
 func UpdateDrawings(screen *ebiten.Image) {
 	wg.Add(1)
@@ -96,13 +72,6 @@ func DrawChamps(screen *ebiten.Image) {
 			boundingradius := element.GameplayRadiusJson
 			pos := element.Position
 			gui.DrawCircle(screen, pos, ran+boundingradius, 4, meColor)
-			//
-			for a, element := range unitmanager.LOCALPLAYER.AiManager.NavigationPath {
-				if a != 0 {
-					gui.DrawRectLine(unitmanager.LOCALPLAYER.AiManager.NavigationPath[a-1], element, screen, wardColorRed)
-				}
-				gui.DrawCircleFilled(screen, element, 30, wardColorRed)
-			}
 			continue
 		}
 	}
@@ -138,6 +107,13 @@ func DrawUnits(screen *ebiten.Image) {
 			gui.DrawCircle(screen, element.Position, element.GameplayRadiusJson, 1, wardColorRed)
 			continue
 		}
+
+		if isMinion(strings.ToLower(element.Name)) {
+			armor := effectiveDamage(unitmanager.LOCALPLAYER.BaseAttack+unitmanager.LOCALPLAYER.BonusAttack, element.Armor+element.BonusArmor)
+			if element.Health <= armor {
+				gui.DrawCircle(screen, element.Position, LAST_HIT_RANGE, 2, minionColorLastHit)
+			}
+		}
 	}
 }
 
@@ -165,31 +141,4 @@ func drawSpell(gameUnit unitmanager.GameUnit, screen *ebiten.Image) {
 		}
 		xOffset += iconSize
 	}
-}
-
-func isWard(name string) bool {
-	for _, a := range wardlist {
-		if a == name {
-			return true
-		}
-	}
-	return false
-}
-
-func isClone(name string) bool {
-	for _, a := range cloneslist {
-		if a == name {
-			return true
-		}
-	}
-	return false
-}
-
-func isTrap(name string) bool {
-	for _, a := range trapslist {
-		if a == name {
-			return true
-		}
-	}
-	return false
 }

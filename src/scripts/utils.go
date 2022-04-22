@@ -10,128 +10,144 @@ const (
 	HIGH_VALUE = 1000000
 )
 
-var Minionlist []string
-var Towerlist []string
-var Monsterlist []string
+var minionlist []string
+var towerlist []string
+var monsterlist []string
+var wardlist []string
+var cloneslist []string
+var trapslist []string
 
 func init() {
-	Minionlist = append(Minionlist, "apheliosturret")
-	Minionlist = append(Minionlist, "elisespiderling")
-	Minionlist = append(Minionlist, "ha_chaosminionmelee")
-	Minionlist = append(Minionlist, "ha_chaosminionranged")
-	Minionlist = append(Minionlist, "ha_chaosminionsiege")
-	Minionlist = append(Minionlist, "ha_chaosminionsuper")
-	Minionlist = append(Minionlist, "ha_orderminionmelee")
-	Minionlist = append(Minionlist, "ha_orderminionranged")
-	Minionlist = append(Minionlist, "ha_orderminionsiege")
-	Minionlist = append(Minionlist, "ha_orderminionsuper")
-	Minionlist = append(Minionlist, "kalistaspawn")
-	Minionlist = append(Minionlist, "malzaharvoidling")
-	Minionlist = append(Minionlist, "shacobox")
-	Minionlist = append(Minionlist, "sru_chaosminionmelee")
-	Minionlist = append(Minionlist, "sru_chaosminionranged")
-	Minionlist = append(Minionlist, "sru_chaosminionsiege")
-	Minionlist = append(Minionlist, "sru_chaosminionsuper")
-	Minionlist = append(Minionlist, "sru_orderminionmelee")
-	Minionlist = append(Minionlist, "sru_orderminionranged")
-	Minionlist = append(Minionlist, "sru_orderminionsiege")
-	Minionlist = append(Minionlist, "sru_orderminionsuper")
-	Minionlist = append(Minionlist, "zyrathornplant")
-	Minionlist = append(Minionlist, "zyragraspingplant")
-	Minionlist = append(Minionlist, "zacrebirthbloblet")
-	Minionlist = append(Minionlist, "yorickghoulmelee")
-	Minionlist = append(Minionlist, "yorickbigghoul")
-	Minionlist = append(Minionlist, "voidspawn")
+	minionlist = append(minionlist, "apheliosturret")
+	minionlist = append(minionlist, "elisespiderling")
+	minionlist = append(minionlist, "ha_chaosminionmelee")
+	minionlist = append(minionlist, "ha_chaosminionranged")
+	minionlist = append(minionlist, "ha_chaosminionsiege")
+	minionlist = append(minionlist, "ha_chaosminionsuper")
+	minionlist = append(minionlist, "ha_orderminionmelee")
+	minionlist = append(minionlist, "ha_orderminionranged")
+	minionlist = append(minionlist, "ha_orderminionsiege")
+	minionlist = append(minionlist, "ha_orderminionsuper")
+	minionlist = append(minionlist, "kalistaspawn")
+	minionlist = append(minionlist, "malzaharvoidling")
+	minionlist = append(minionlist, "shacobox")
+	minionlist = append(minionlist, "sru_chaosminionmelee")
+	minionlist = append(minionlist, "sru_chaosminionranged")
+	minionlist = append(minionlist, "sru_chaosminionsiege")
+	minionlist = append(minionlist, "sru_chaosminionsuper")
+	minionlist = append(minionlist, "sru_orderminionmelee")
+	minionlist = append(minionlist, "sru_orderminionranged")
+	minionlist = append(minionlist, "sru_orderminionsiege")
+	minionlist = append(minionlist, "sru_orderminionsuper")
+	minionlist = append(minionlist, "zyrathornplant")
+	minionlist = append(minionlist, "zyragraspingplant")
+	minionlist = append(minionlist, "zacrebirthbloblet")
+	minionlist = append(minionlist, "yorickghoulmelee")
+	minionlist = append(minionlist, "yorickbigghoul")
+	minionlist = append(minionlist, "voidspawn")
 
-	Towerlist = append(Towerlist, "azirsundisc")
-	Towerlist = append(Towerlist, "bw_ap_chaosturret")
-	Towerlist = append(Towerlist, "bw_ap_chaosturret2")
-	Towerlist = append(Towerlist, "bw_ap_chaosturret3")
-	Towerlist = append(Towerlist, "bw_ap_chaosturretrubble")
-	Towerlist = append(Towerlist, "bw_ap_finn")
-	Towerlist = append(Towerlist, "bw_ap_orderturret")
-	Towerlist = append(Towerlist, "bw_ap_orderturret2")
-	Towerlist = append(Towerlist, "bw_ap_orderturret3")
-	Towerlist = append(Towerlist, "bw_ap_orderturretrubble")
-	Towerlist = append(Towerlist, "ha_ap_chaosturret")
-	Towerlist = append(Towerlist, "ha_ap_chaosturret2")
-	Towerlist = append(Towerlist, "ha_ap_chaosturret3")
-	Towerlist = append(Towerlist, "ha_ap_chaosturretrubble")
-	Towerlist = append(Towerlist, "ha_ap_chaosturretshrine")
-	Towerlist = append(Towerlist, "ha_ap_chaosturrettutorial")
-	Towerlist = append(Towerlist, "ha_ap_ordershrineturret")
-	Towerlist = append(Towerlist, "ha_ap_orderturret")
-	Towerlist = append(Towerlist, "ha_ap_orderturret2")
-	Towerlist = append(Towerlist, "ha_ap_orderturret3")
-	Towerlist = append(Towerlist, "ha_ap_orderturretrubble")
-	Towerlist = append(Towerlist, "ha_ap_orderturrettutorial")
-	Towerlist = append(Towerlist, "preseason_turret_shield")
-	Towerlist = append(Towerlist, "sruap_magecrystal")
-	Towerlist = append(Towerlist, "sruap_orderinhibitor_rubble")
-	Towerlist = append(Towerlist, "sruap_ordernexus")
-	Towerlist = append(Towerlist, "sruap_ordernexus_rubble")
-	Towerlist = append(Towerlist, "sruap_turret_chaos1")
-	Towerlist = append(Towerlist, "sruap_turret_chaos2")
-	Towerlist = append(Towerlist, "sruap_turret_chaos3")
-	Towerlist = append(Towerlist, "sruap_turret_chaos4")
-	Towerlist = append(Towerlist, "sruap_turret_chaos5")
-	Towerlist = append(Towerlist, "sruap_turret_order1")
-	Towerlist = append(Towerlist, "sruap_turret_order1_bot")
-	Towerlist = append(Towerlist, "sruap_turret_order2")
-	Towerlist = append(Towerlist, "sruap_turret_order3")
-	Towerlist = append(Towerlist, "sruap_turret_order4")
-	Towerlist = append(Towerlist, "sruap_turret_order5")
-	Towerlist = append(Towerlist, "chaosinhibitor")
-	Towerlist = append(Towerlist, "orderinhibitor")
-	Towerlist = append(Towerlist, "sruap_orderinhibitor")
-	Towerlist = append(Towerlist, "sruap_chaosinhibitor")
-	Towerlist = append(Towerlist, "chaosnexus")
-	Towerlist = append(Towerlist, "ordernexus")
-	Towerlist = append(Towerlist, "sruap_chaosnexus")
+	towerlist = append(towerlist, "azirsundisc")
+	towerlist = append(towerlist, "bw_ap_chaosturret")
+	towerlist = append(towerlist, "bw_ap_chaosturret2")
+	towerlist = append(towerlist, "bw_ap_chaosturret3")
+	towerlist = append(towerlist, "bw_ap_chaosturretrubble")
+	towerlist = append(towerlist, "bw_ap_finn")
+	towerlist = append(towerlist, "bw_ap_orderturret")
+	towerlist = append(towerlist, "bw_ap_orderturret2")
+	towerlist = append(towerlist, "bw_ap_orderturret3")
+	towerlist = append(towerlist, "bw_ap_orderturretrubble")
+	towerlist = append(towerlist, "ha_ap_chaosturret")
+	towerlist = append(towerlist, "ha_ap_chaosturret2")
+	towerlist = append(towerlist, "ha_ap_chaosturret3")
+	towerlist = append(towerlist, "ha_ap_chaosturretrubble")
+	towerlist = append(towerlist, "ha_ap_chaosturretshrine")
+	towerlist = append(towerlist, "ha_ap_chaosturrettutorial")
+	towerlist = append(towerlist, "ha_ap_ordershrineturret")
+	towerlist = append(towerlist, "ha_ap_orderturret")
+	towerlist = append(towerlist, "ha_ap_orderturret2")
+	towerlist = append(towerlist, "ha_ap_orderturret3")
+	towerlist = append(towerlist, "ha_ap_orderturretrubble")
+	towerlist = append(towerlist, "ha_ap_orderturrettutorial")
+	towerlist = append(towerlist, "preseason_turret_shield")
+	towerlist = append(towerlist, "sruap_magecrystal")
+	towerlist = append(towerlist, "sruap_orderinhibitor_rubble")
+	towerlist = append(towerlist, "sruap_ordernexus")
+	towerlist = append(towerlist, "sruap_ordernexus_rubble")
+	towerlist = append(towerlist, "sruap_turret_chaos1")
+	towerlist = append(towerlist, "sruap_turret_chaos2")
+	towerlist = append(towerlist, "sruap_turret_chaos3")
+	towerlist = append(towerlist, "sruap_turret_chaos4")
+	towerlist = append(towerlist, "sruap_turret_chaos5")
+	towerlist = append(towerlist, "sruap_turret_order1")
+	towerlist = append(towerlist, "sruap_turret_order1_bot")
+	towerlist = append(towerlist, "sruap_turret_order2")
+	towerlist = append(towerlist, "sruap_turret_order3")
+	towerlist = append(towerlist, "sruap_turret_order4")
+	towerlist = append(towerlist, "sruap_turret_order5")
+	towerlist = append(towerlist, "chaosinhibitor")
+	towerlist = append(towerlist, "orderinhibitor")
+	towerlist = append(towerlist, "sruap_orderinhibitor")
+	towerlist = append(towerlist, "sruap_chaosinhibitor")
+	towerlist = append(towerlist, "chaosnexus")
+	towerlist = append(towerlist, "ordernexus")
+	towerlist = append(towerlist, "sruap_chaosnexus")
 
-	Monsterlist = append(Monsterlist, "assassinmode_objective_boss2")
-	Monsterlist = append(Monsterlist, "doombotsbossteemo")
-	Monsterlist = append(Monsterlist, "fiddlestickseffigy")
-	Monsterlist = append(Monsterlist, "sru_baron")
-	Monsterlist = append(Monsterlist, "kingporo")
-	Monsterlist = append(Monsterlist, "sru_blue")
-	Monsterlist = append(Monsterlist, "sru_bluemini")
-	Monsterlist = append(Monsterlist, "sru_bluemini2")
-	Monsterlist = append(Monsterlist, "sru_crab")
-	Monsterlist = append(Monsterlist, "sru_dragon")
-	Monsterlist = append(Monsterlist, "sru_dragon_air")
-	Monsterlist = append(Monsterlist, "sru_dragon_chemtech")
-	Monsterlist = append(Monsterlist, "sru_dragon_earth")
-	Monsterlist = append(Monsterlist, "sru_dragon_elder")
-	Monsterlist = append(Monsterlist, "sru_dragon_fire")
-	Monsterlist = append(Monsterlist, "sru_dragon_hextech")
-	Monsterlist = append(Monsterlist, "sru_dragon_ruined")
-	Monsterlist = append(Monsterlist, "sru_dragon_water")
-	Monsterlist = append(Monsterlist, "sru_gromp")
-	Monsterlist = append(Monsterlist, "sru_krug")
-	Monsterlist = append(Monsterlist, "sru_krugmini")
-	Monsterlist = append(Monsterlist, "sru_krugminimini")
-	Monsterlist = append(Monsterlist, "sru_murkwolf")
-	Monsterlist = append(Monsterlist, "sru_murkwolfmini")
-	Monsterlist = append(Monsterlist, "sru_razorbeak")
-	Monsterlist = append(Monsterlist, "sru_razorbeakmini")
-	Monsterlist = append(Monsterlist, "sru_red")
-	Monsterlist = append(Monsterlist, "sru_redmini")
-	Monsterlist = append(Monsterlist, "sru_riftherald")
-	Monsterlist = append(Monsterlist, "sru_riftherald_mercenary")
-}
+	monsterlist = append(monsterlist, "assassinmode_objective_boss2")
+	monsterlist = append(monsterlist, "doombotsbossteemo")
+	monsterlist = append(monsterlist, "fiddlestickseffigy")
+	monsterlist = append(monsterlist, "sru_baron")
+	monsterlist = append(monsterlist, "kingporo")
+	monsterlist = append(monsterlist, "sru_blue")
+	monsterlist = append(monsterlist, "sru_bluemini")
+	monsterlist = append(monsterlist, "sru_bluemini2")
+	monsterlist = append(monsterlist, "sru_crab")
+	monsterlist = append(monsterlist, "sru_dragon")
+	monsterlist = append(monsterlist, "sru_dragon_air")
+	monsterlist = append(monsterlist, "sru_dragon_chemtech")
+	monsterlist = append(monsterlist, "sru_dragon_earth")
+	monsterlist = append(monsterlist, "sru_dragon_elder")
+	monsterlist = append(monsterlist, "sru_dragon_fire")
+	monsterlist = append(monsterlist, "sru_dragon_hextech")
+	monsterlist = append(monsterlist, "sru_dragon_ruined")
+	monsterlist = append(monsterlist, "sru_dragon_water")
+	monsterlist = append(monsterlist, "sru_gromp")
+	monsterlist = append(monsterlist, "sru_krug")
+	monsterlist = append(monsterlist, "sru_krugmini")
+	monsterlist = append(monsterlist, "sru_krugminimini")
+	monsterlist = append(monsterlist, "sru_murkwolf")
+	monsterlist = append(monsterlist, "sru_murkwolfmini")
+	monsterlist = append(monsterlist, "sru_razorbeak")
+	monsterlist = append(monsterlist, "sru_razorbeakmini")
+	monsterlist = append(monsterlist, "sru_red")
+	monsterlist = append(monsterlist, "sru_redmini")
+	monsterlist = append(monsterlist, "sru_riftherald")
+	monsterlist = append(monsterlist, "sru_riftherald_mercenary")
 
-func isMinion(name string) bool {
-	for _, a := range Minionlist {
-		if a == strings.ToLower(name) {
-			return true
-		}
-	}
-	return false
+	wardlist = append(wardlist, "perkszombieward")
+	wardlist = append(wardlist, "sightward")
+	wardlist = append(wardlist, "visionward")
+	wardlist = append(wardlist, "yellowtrinket")
+	wardlist = append(wardlist, "yellowtrinketupgrade")
+	wardlist = append(wardlist, "bluetrinket")
+	wardlist = append(wardlist, "jammerdevice")
+
+	cloneslist = append(cloneslist, "shaco")
+	cloneslist = append(cloneslist, "leblanc")
+	cloneslist = append(cloneslist, "monkeyking")
+	cloneslist = append(cloneslist, "neeko")
+	cloneslist = append(cloneslist, "fiddlesticks")
+
+	trapslist = append(trapslist, "caitlyntrap")
+	trapslist = append(trapslist, "jhintrap")
+	trapslist = append(trapslist, "jinxmine")
+	trapslist = append(trapslist, "maokaisproutling")
+	trapslist = append(trapslist, "nidaleespear")
+	trapslist = append(trapslist, "shacobox")
+	trapslist = append(trapslist, "teemomushroom")
 }
 
 func isMonster(name string) bool {
-	for _, a := range Monsterlist {
+	for _, a := range monsterlist {
 		if a == strings.ToLower(name) {
 			return true
 		}
@@ -140,7 +156,7 @@ func isMonster(name string) bool {
 }
 
 func isTower(name string) bool {
-	for _, a := range Towerlist {
+	for _, a := range towerlist {
 		if a == strings.ToLower(name) {
 			return true
 		}
@@ -204,6 +220,28 @@ func GestBestTargetForUnits() (unitmanager.GameUnit, bool) {
 	// if gameunit.Team != 0 {
 	// 	return gameunit, true
 	// }
+	for _, element := range unitmanager.UNITMANAGER.AllUnits {
+		if element.Team == unitmanager.LOCALPLAYER.Team {
+			continue
+		}
+		if !element.IsAlive {
+			continue
+		}
+		if !element.IsVisible {
+			continue
+		}
+		if !element.IsTargetable {
+			continue
+		}
+
+		if !inRange(element) {
+			continue
+		}
+		if lasthealth >= element.Health {
+			lasthealth = element.Health
+			gameunit = element
+		}
+	}
 
 	for _, element := range unitmanager.UNITMANAGER.Turrets {
 		if element.Team == unitmanager.LOCALPLAYER.Team {
@@ -228,28 +266,6 @@ func GestBestTargetForUnits() (unitmanager.GameUnit, bool) {
 	if gameunit.Team != 0 {
 		return gameunit, true
 	}
-	for _, element := range unitmanager.UNITMANAGER.AllUnits {
-		if element.Team == unitmanager.LOCALPLAYER.Team {
-			continue
-		}
-		if !element.IsAlive {
-			continue
-		}
-		if !element.IsVisible {
-			continue
-		}
-		if !element.IsTargetable {
-			continue
-		}
-
-		if !inRange(element) {
-			continue
-		}
-		if lasthealth >= element.Health {
-			lasthealth = element.Health
-			gameunit = element
-		}
-	}
 
 	if gameunit.Team != 0 {
 		return gameunit, true
@@ -266,4 +282,48 @@ func inRange(gameunit unitmanager.GameUnit) bool {
 func distanceBetweenTargets3D(position1 unitmanager.GamePosition, position2 unitmanager.GamePosition) float64 {
 	pow := math.Pow(float64(position1.X)-float64(position2.X), 2) + math.Pow(float64(position1.Y)-float64(position2.Y), 2) + math.Pow(float64(position1.Z)-float64(position2.Z), 2)
 	return math.Abs(math.Pow(pow, 0.5))
+}
+
+func effectiveDamage(damage float32, resist float32) float32 {
+	if resist > 0 {
+		return damage * 100 / (100 * resist)
+	}
+	val := damage * (2 - (100 / (100 - resist)))
+	return val
+}
+
+func isMinion(name string) bool {
+	for _, a := range minionlist {
+		if a == name {
+			return true
+		}
+	}
+	return false
+}
+
+func isWard(name string) bool {
+	for _, a := range wardlist {
+		if a == name {
+			return true
+		}
+	}
+	return false
+}
+
+func isClone(name string) bool {
+	for _, a := range cloneslist {
+		if a == name {
+			return true
+		}
+	}
+	return false
+}
+
+func isTrap(name string) bool {
+	for _, a := range trapslist {
+		if a == name {
+			return true
+		}
+	}
+	return false
 }
