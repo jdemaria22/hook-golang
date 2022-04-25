@@ -42,6 +42,9 @@ func UpdateDrawings(screen *ebiten.Image) {
 }
 
 func DrawChamps(screen *ebiten.Image) {
+	if !gui.CheckboxRanges.Value {
+		return
+	}
 	for _, element := range unitmanager.UNITMANAGER.Champions {
 		if element.Team != unitmanager.LOCALPLAYER.Team {
 			if !element.IsAlive {
@@ -88,6 +91,9 @@ func DrawUnits(screen *ebiten.Image) {
 		}
 
 		if isWard(strings.ToLower(element.Name)) {
+			if !gui.CheckboxWards.Value {
+				continue
+			}
 			rendererpos := renderer.WorldToScreen(renderer.RENDERER, element.Position.X, element.Position.Y, element.Position.Z)
 			if element.Name == "JammerDevice" {
 				gui.DrawText(screen, int(rendererpos.X), int(rendererpos.Y), color.White, element.Name)
@@ -102,6 +108,9 @@ func DrawUnits(screen *ebiten.Image) {
 		}
 
 		if isTrap(strings.ToLower(element.Name)) {
+			if !gui.CheckboxTraps.Value {
+				continue
+			}
 			rendererpos := renderer.WorldToScreen(renderer.RENDERER, element.Position.X, element.Position.Y, element.Position.Z)
 			gui.DrawText(screen, int(rendererpos.X), int(rendererpos.Y), color.White, element.Name)
 			gui.DrawCircle(screen, element.Position, element.GameplayRadiusJson, 1, wardColorRed)
@@ -109,6 +118,9 @@ func DrawUnits(screen *ebiten.Image) {
 		}
 
 		if isMinion(strings.ToLower(element.Name)) {
+			if !gui.CheckboxLastHit.Value {
+				continue
+			}
 			armor := effectiveDamage(unitmanager.LOCALPLAYER.BaseAttack+unitmanager.LOCALPLAYER.BonusAttack, element.Armor+element.BonusArmor)
 			if element.Health <= armor {
 				gui.DrawCircle(screen, element.Position, LAST_HIT_RANGE, 2, minionColorLastHit)
@@ -121,6 +133,9 @@ var iconSize float32 = 28
 var yOffset float32 = iconSize * 2
 
 func drawSpell(gameUnit unitmanager.GameUnit, screen *ebiten.Image) {
+	if !gui.CheckboxSpells.Value {
+		return
+	}
 	rendererpos := renderer.WorldToScreen(renderer.RENDERER, gameUnit.Position.X, gameUnit.Position.Y, gameUnit.Position.Z)
 	drawY := rendererpos.Y + yOffset - 150
 	xOffset := -yOffset - 20

@@ -45,12 +45,10 @@ func UpdateSpell(gameUnit GameUnit, data []byte, deep bool) [6]Spell {
 	for i := 0; i < len(gameUnit.Spells); i++ {
 		address := memory.Int32frombytes(data[offset.OBJSPELLBOOK+(i*4):])
 		if address == 0 {
-			fmt.Println("Error in address UpdateSpell")
 			continue
 		}
 		databuff, err := memory.Read(HOOK.Process, int(address), DATA_SIZE)
 		if err != nil {
-			fmt.Println("Error in databuff ", err)
 			continue
 		}
 		gameUnit.Spells[i].ReadyAtSeconds = memory.Float32frombytes(databuff[SpellSlotTime:])
@@ -78,10 +76,9 @@ func deepLoad(data []byte, spell Spell) Spell {
 	}
 	val, err := memory.Read(HOOK.Process, int(namePointer), SIZE_NAME_SPELL)
 	if err != nil {
-		fmt.Println("Error in namePointer merca")
+		fmt.Println("Error in namePointer val")
 	}
 	spell.Name = memory.CopyString(val)
-	// fmt.Println(spell.Name)
 	spell = addSpellInfoFromJson(spell)
 	spell = loadIconSpell(spell)
 	return spell

@@ -91,10 +91,17 @@ func navigationPath(data []byte) []GamePosition {
 
 	aiManagerPointerPathEnd := memory.Int32frombytes(data[AiManagerPointerPathEnd:])
 
+	if aiManagerPointerPathEnd == 0 {
+		return []GamePosition{}
+	}
 	numsegments := aiManagerPointerPathEnd - aiManagerPointerPathStart
+	if numsegments == 0 {
+		return []GamePosition{}
+	}
 	dataBuff, err := memory.Read(HOOK.Process, int(aiManagerPointerPathStart), int(numsegments))
 	if err != nil {
 		fmt.Println(err)
+		return []GamePosition{}
 	}
 
 	navigationPath := []GamePosition{}

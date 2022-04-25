@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"framework-memory-go/src/gui"
 	"framework-memory-go/src/hook"
 	"framework-memory-go/src/module"
 	"framework-memory-go/src/scripts"
@@ -15,6 +16,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+
+	"gioui.org/widget"
 )
 
 var (
@@ -26,7 +29,7 @@ var (
 const (
 	screenWidth  = 1920
 	screenHeight = 1080
-	RANDOM       = 10000
+	RANDOM       = 12354
 	MAX_TPS      = 1000
 )
 
@@ -44,6 +47,7 @@ func init() {
 }
 
 func main() {
+
 	NAME = strconv.Itoa(rand.Intn(RANDOM))
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle(NAME)
@@ -70,6 +74,8 @@ func NewGame() *Game {
 
 var tick = time.Now().UnixMilli()
 
+var checkbox = new(widget.Bool)
+
 func (g *Game) Update() error {
 	var wgg sync.WaitGroup
 	if count == 0 {
@@ -83,6 +89,7 @@ func (g *Game) Update() error {
 				fmt.Println("error in  setWindowLong: ", err, r2)
 			}
 			win.SetForegroundWindow(wnproc)
+			gui.CreateUi(NAME + "k")
 		}()
 
 	}
