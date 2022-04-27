@@ -1,15 +1,15 @@
 package offset
 
 const (
-	GAMETIME         int = 0x30ECC8C //F3 0F 11 05 ? ? ? ? 8B 49
-	OBJECTMANAGER    int = 0x24A4B90 //89 ? ? ? ? ? 57 C7 06 ? ? ? ? 66 C7 46 04 ? ?
-	LOCALPLAYER      int = 0x30F5BBC //51 8B 0D ? ? ? ? 85 C9 74 26
+	GAMETIME         int = 0x31001D0 //F3 0F 11 05 ? ? ? ? 8B 49
+	OBJECTMANAGER    int = 0x24B80A8 //89 ? ? ? ? ? 57 C7 06 ? ? ? ? 66 C7 46 04 ? ?
+	LOCALPLAYER      int = 0x31090E8 //51 8B 0D ? ? ? ? 85 C9 74 26
 	UNDERMOUSEOBJECT int = 0x30E95F0 //8B 0D ? ? ? ? C7 04 24 ? ? ? ? FF 74 24 58 - 89 0D ? ? ? ? C7 41 ? ? ? ? ? C7 41 ? ? ? ? ? C7 01 ? ? ? ?
-	ZOOMCLASS        int = 0x310D610 //A3 ? ? ? ? 83 FA 10 72 32
-	CHAT             int = 0x30F5C94 //8B 0D ? ? ? ? 8A D8 85
-	VIEWPROJMATRICES int = 0x31203A0 //B9 ? ? ? ? 0F 10 80
-	RENDERER         int = 0x31232A0 //8B 0D ? ? ? ? 50 E8 ? ? ? ? 5E 8B
-	MINIMAPOBJECT    int = 0x30ECCCC //8B 1D ? ? ? ? 85 DB 74 19
+	ZOOMCLASS        int = 0x30FF660 //A3 ? ? ? ? 83 FA 10 72 32
+	CHAT             int = 0x310919C //8B 0D ? ? ? ? 8A D8 85
+	VIEWPROJMATRICES int = 0x31340C8 //B9 ? ? ? ? 0F 10 80
+	RENDERER         int = 0x3136FC8 //8B 0D ? ? ? ? 50 E8 ? ? ? ? 5E 8B
+	MINIMAPOBJECT    int = 0x3100210 //8B 1D ? ? ? ? 85 DB 74 19
 
 	OBJINDEX             int = 0x20  //always the same
 	OBJTEAM              int = 0x4C  //always the same
@@ -61,6 +61,7 @@ const (
 	OBJPERCENTMAGICPEN   int = 0x11E4
 	OBJLIFESTEAL         int = 0x12A0
 	OBJCRITCHANCE        int = 0x12E0
+	OBJISZOMBIE          int = 0x3A
 
 	OBJEXPERIENCE int = 0x337C
 	OBJLEVEL      int = OBJEXPERIENCE + 0x10
@@ -73,7 +74,7 @@ const (
 
 	MAXZOOM int = 0x20 //always the same
 
-	CHATISOPEN int = 0x754 //C7 86 ? ? ? ? ? ? ? ? E8 ? ? ? ? 83 C4 04 85 C0 75 30 F6 86 ? ? ? ? ? 75 1B 38 86 ? ? ? ?
+	CHATISOPEN int = 0x73C //0x754 //C7 86 ? ? ? ? ? ? ? ? E8 ? ? ? ? 83 C4 04 85 C0 75 30 F6 86 ? ? ? ? ? 75 1B 38 86 ? ? ? ?
 
 	SPELLBOOKACTIVESPELLCAST int = 0x20  //always the same
 	SPELLBOOKSPELLSLOTS      int = 0x488 //always the same
@@ -145,7 +146,7 @@ const (
 	SPELLCASTSRCIDX       int = 0x68
 	SPELLCASTDESTIDX      int = 0xC0
 
-	MINIMAPOBJECTHUD int = 0x110
+	MINIMAPOBJECTHUD int = 0x120 //C7 44 24 ? ? ? ? ? E8 ? ? ? ? 8B B7 ? ? ? ? 8B //Tomar primer valor ejemplo [esp+120h+var_D4]
 	MINIMAPHUDPOS    int = 0x44
 	MINIMAPHUDSIZE   int = 0x4C
 
@@ -167,7 +168,7 @@ const (
 	AIMANAGERPOINTERPATHEND     int = 0x1E8 //Vector3 list
 
 	// TestGamePing
-	TESTGAMEPINGA int = 0x310B7FC //A1 ?? ?? ?? ?? 85 C0 74 07 C7 40 ?? ?? ?? ?? ?? C2
+	TESTGAMEPINGA int = 0x30FD924 //A1 ?? ?? ?? ?? 85 C0 74 07 C7 40 ?? ?? ?? ?? ?? C2
 	TESTGAMEPINGB int = 0x3c
 	TESTGAMEPINGC int = 0x28
 
@@ -184,18 +185,18 @@ const (
 	MISSILEENDPOS      int = 0x300     //0x9CL //12.1
 	MISSILESPEED       int = 0x68      //12.1
 
-	AIMissileClient int = 0x24A4BD4
-	AIMinionClient  int = 0x24A4C24
-	AITurretClient  int = 0x30EA410
-	AIHeroClient    int = 0x1856650
-	AIBuildingList  int = 0x1855F10
+	AIMissileClient int = 0x24B80EC
+	AIMinionClient  int = 0x24B813C
+	AITurretClient  int = 0x30FD910
+	AIHeroClient    int = 0x1869B50
+	AIBuildingList  int = 0x1869238
 
-// #define oTurretList 0x30EA410	//8B 35 ? ? ? ? 8B 76 18
-// #define oMinionList 0x24A4C24	//A1 ? ? ? ? 8B 50 04 8D 48 04 89 44 24 3C
-// #define oHeroList 0x1856650	//8B 15 ? ? ? ? 0F 44 C1
+// #define oTurretList 0x30FD910	//8B 35 ? ? ? ? 8B 76 18
+// #define oMinionList 0x24B813C	//A1 ? ? ? ? 8B 50 04 8D 48 04 89 44 24 3C
+// #define oHeroList 0x1869B50	//8B 15 ? ? ? ? 0F 44 C1
 // #define oInhibitorList 0x30F5D28	//A1 ?? ?? ?? ?? 53 55 56 8B 70 04 8B 40 08
-// #define oBuildingList 0x1855F10	//8B 15 ?? ?? ?? ?? 8B 7A 04 8B 42 08 8D 0C 87 3B F9 73 38
+// #define oBuildingList 0x1869238	//8B 15 ?? ?? ?? ?? 8B 7A 04 8B 42 08 8D 0C 87 3B F9 73 38
 // #define oAttackableUnitList 0x24A4BC8	//A1 ?? ?? ?? ?? 8B 50 04 8B 40 08
 // #define oShopsList 0x30EA414	//8B 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 75 11 8B 4F 04
-// #define oMissileList 0x24A4BD4 	//8B 35 ?? ?? ?? ?? 8B 46 04 8B 6E 08 8D 0C A8 3B C1 73 15 66 0F 1F 44 00 00 39 38
+// #define oMissileList 0x24B80EC 	//8B 35 ?? ?? ?? ?? 8B 46 04 8B 6E 08 8D 0C A8 3B C1 73 15 66 0F 1F 44 00 00 39 38
 )
